@@ -1,7 +1,11 @@
 <?php
 
 use App\Http\Controllers\ArticleController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\RoleController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\GoogleController;
+use App\Http\Controllers\ChatController;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,11 +22,25 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/get-google-sign-in-url', [GoogleController::class, 'getGoogleSignInUrl'])->name('getLogInUrl');
+Route::get('/google/callback', [GoogleController::class, 'loginCallback'])->name('loginGoogleCallback');
+
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 require __DIR__ . '/auth.php';
 
-
-Route::resource('articles', ArticleController::class)->middleware(['auth', 'verified']);
+Route::group([
+    'middleware' => ['auth', 'verified'],
+    'prefix' => 'admin'
+], function () {
+    Route::resource('articles', ArticleController::class);
+    Route::resource('users', UserController::class);
+    Route::get('export-user/2', [UserController::class, 'test'])->name('users.exportUser');
+    Route::resource('roles', RoleController::class);
+    // Route::get('/index', [ChatController::class, 'index'])->name('chats.index');
+    Route::group(['prefix' => 'chats'], function () {
+        Route::get('/index', [ChatController::class, 'index'])->name('chats.index');
+    });
+});
