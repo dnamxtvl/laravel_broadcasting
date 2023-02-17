@@ -6,13 +6,15 @@ use Illuminate\Http\Request;
 use App\Models\Chat;
 use App\Models\GroupChat;
 use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 
 class ChatController extends Controller
 {
-    public function __construct(Chat $chat, GroupChat $groupChat)
+    public function __construct(Chat $chat, GroupChat $groupChat, User $user)
     {
         $this->chat = $chat;
         $this->groupChat = $groupChat;
+        $this->user = $user;
     }
 
     public function index(Request $request)
