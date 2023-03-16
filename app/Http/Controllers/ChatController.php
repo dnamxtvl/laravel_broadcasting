@@ -21,8 +21,21 @@ class ChatController extends Controller
 
     public function index(Request $request)
     {
-        $listUser = $this->user->all();
-        return view('chat.index');
+        $listUsers = $this->user->addSelect([
+            'unread_message' => $this->chat->selectRaw('count(*)')
+                ->where('status', Chat::STATUS_UNREAD)
+                ->whereColumn('send_user_id', 'users.id')
+                ->where('to_user_id', Auth::id())
+        ])->get();
+
+        $lastestUserSendMessage = $this->chat->whereNull('group_id')
+            ->where('send_user_id', Auth::id())
+            ->orderByDesc('created_at')
+            ->first();
+
+        $lastestToUserId = $lastestUserSendMessage ? $lastestUserSendMessage->to_user_id : Auth::id();
+
+        return view('chat.index', compact('listUsers', 'lastestToUserId'));
     }
 
     public function addGroupCChat(Request $request)
@@ -47,22 +60,37 @@ class ChatController extends Controller
         }
     }
 
-    public function listDetailMessageSingle($toUserId)
+    public function listDetailMessageSingle($toUserId, Request $request)
     {
+        $limitRow = 10;
+        $page = $request->page ?? 1;
+        $offset = $page ? ($page - 1) * $limitRow : 0;
+
+        $this->chat->where('to_user_id', Auth::id())
+            ->where('send_user_id', $toUserId)->update([
+                'status' => Chat::STATUS_READ
+            ]);
+
         $listMessage = $this->chat->whereNull('group_id')
             ->with([
                 'userSendMessage:id,name,avatar',
                 'userReceiveMessage:id,name,avatar'
             ])
-            ->where(function ($query) use ($toUserId) {
-                $query->where('send_user_id', Auth::id())
-                ->where('to_user_id', $toUserId);
-            })->orWhere(function ($query1) use ($toUserId) {
-                $query1->where('to_user_id', Auth::id())
-                ->where('send_user_id', $toUserId);
+            ->where(function ($query2) use ($toUserId) {
+                $query2->where(function ($query) use ($toUserId) {
+                    $query->where('send_user_id', Auth::id())
+                        ->where('to_user_id', $toUserId);
+                })->orWhere(function ($query1) use ($toUserId) {
+                    $query1->where('to_user_id', Auth::id())
+                        ->where('send_user_id', $toUserId);
+                });
             })
-            ->orderBy('created_at')
-            ->get();
+            ->take($limitRow)
+            ->skip($offset)
+            ->orderByDesc('created_at')
+            ->get()
+            ->reverse()
+            ->values();
 
         return response()->json([
             'status' => 200,

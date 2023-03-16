@@ -1,0 +1,35 @@
+.toast-entity {
+    /* position: fixed; */
+    bottom: 20px;
+    right: 20px;
+    z-index: 9999;
+}
+
+.bg-gray-200 {
+    background-color: #edf2f7;
+}
+
+.rounded-lg {
+    border-radius: 0.5rem;
+}
+
+.shadow-lg {
+    box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.2);
+}
+
+#toast-message {
+    font-weight: bold;
+}
+
+#toast-secondary {
+    font-style: italic;
+}
+
+.att-toast {
+    max-width: 300px;
+    /* đặt giá trị tối đa cho chiều rộng của toast */
+}
+
+#toast-created {
+    margin-left: auto;
+}

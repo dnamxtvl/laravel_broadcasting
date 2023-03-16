@@ -19,6 +19,7 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
+        'id',
         'name',
         'email',
         'password',
@@ -52,6 +53,6 @@ class User extends Authenticatable
 
     public function receiveChat()
     {
-        return $this->hasMany(Chat::class, 'id', 'to_user_id');
+        return $this->hasMany(Chat::class, 'to_user_id', 'id');
     }
 }
