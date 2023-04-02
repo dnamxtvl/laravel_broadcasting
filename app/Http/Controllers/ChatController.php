@@ -2,16 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Events\SendMessageEvent;
 use App\Models\Chat;
 use App\Models\GroupChat;
-use Illuminate\Support\Facades\Auth;
 use App\Models\User;
-use App\Events\SendMessageEvent;
-use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 
 class ChatController extends Controller
 {
+    private readonly Chat $chat;
+    private readonly GroupChat $groupChat;
+    private readonly User $user;
+
     public function __construct(Chat $chat, GroupChat $groupChat, User $user)
     {
         $this->chat = $chat;
@@ -48,14 +52,15 @@ class ChatController extends Controller
         try {
             // SendMessageEvent::dispatch(Auth::user(), $request->to_user_id, $request->message);
             broadcast(new SendMessageEvent(Auth::user(), $request->to_user_id, $request->message))->toOthers();
+
             return response()->json([
                 'status' => 200,
-                'message' => 'success'
+                'message' => 'success',
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 500,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -68,13 +73,13 @@ class ChatController extends Controller
 
         $this->chat->where('to_user_id', Auth::id())
             ->where('send_user_id', $toUserId)->update([
-                'status' => Chat::STATUS_READ
+                'status' => Chat::STATUS_READ,
             ]);
 
         $listMessage = $this->chat->whereNull('group_id')
             ->with([
                 'userSendMessage:id,name,avatar',
-                'userReceiveMessage:id,name,avatar'
+                'userReceiveMessage:id,name,avatar',
             ])
             ->where(function ($query2) use ($toUserId) {
                 $query2->where(function ($query) use ($toUserId) {
@@ -95,7 +100,7 @@ class ChatController extends Controller
         return response()->json([
             'status' => 200,
             'message' => 'success',
-            'data' => $listMessage
+            'data' => $listMessage,
         ], 200);
     }
 }
