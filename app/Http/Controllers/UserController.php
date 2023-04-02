@@ -8,6 +8,7 @@ use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Route;
 
 class UserController extends Controller
 {
@@ -19,8 +20,11 @@ class UserController extends Controller
 
     public function index(Request $request)
     {
-        $listUsers = $this->user->orderByDesc('created_at')->paginate(20);
+        $request = Request::create('http://localhost:8000' . '/api/test/3', 'POST');
 
+        $response = Route::dispatch($request);
+        $listUsers = json_decode($response->getContent(), true)['d'];
+        dd($listUsers);
         return view('users.index', compact('listUsers'));
     }
 
@@ -43,7 +47,7 @@ class UserController extends Controller
         $data = $request->except(["_token"]);
 
         $data['password'] = Hash::make($data['password']);
-        
+
         DB::beginTransaction();
         try {
             $newUser = new User();
@@ -71,12 +75,13 @@ class UserController extends Controller
 
     public function test($id)
     {
-        $user = $this->user->findOrFail($id)->name;
+        $user = $this->user->paginate(4);
 
         Log::alert('Lấy dữ liệu thành công dòng ' . __LINE__);
         return response()->json([
             'success' => true,
             'code' => 200,
+            'data' => $user,
             'message' => 'Lấy data thành công!'
         ]);
     }

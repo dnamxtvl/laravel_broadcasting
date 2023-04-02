@@ -12,6 +12,7 @@ class Notification extends Eloquent
     protected $fillable = [
         'title',
         'user_id',
-        'link'
+        'link',
+        'test'
     ];
 }
