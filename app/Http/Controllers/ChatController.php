@@ -2,40 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use App\Features\GetListChatsFeature;
+use App\Features\GetListMessageDetailFeature;
+use App\Features\SendMessageFeature;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use App\Models\Chat;
-use App\Models\GroupChat;
-use Illuminate\Support\Facades\Auth;
-use App\Models\User;
-use App\Events\SendMessageEvent;
-use Illuminate\Http\Exceptions\HttpResponseException;
+use Lucid\Units\Controller;
 
 class ChatController extends Controller
 {
-    public function __construct(Chat $chat, GroupChat $groupChat, User $user)
+
+    public function __construct()
+    {}
+
+    public function index()
     {
-        $this->chat = $chat;
-        $this->groupChat = $groupChat;
-        $this->user = $user;
-    }
-
-    public function index(Request $request)
-    {
-        $listUsers = $this->user->addSelect([
-            'unread_message' => $this->chat->selectRaw('count(*)')
-                ->where('status', Chat::STATUS_UNREAD)
-                ->whereColumn('send_user_id', 'users.id')
-                ->where('to_user_id', Auth::id())
-        ])->get();
-
-        $lastestUserSendMessage = $this->chat->whereNull('group_id')
-            ->where('send_user_id', Auth::id())
-            ->orderByDesc('created_at')
-            ->first();
-
-        $lastestToUserId = $lastestUserSendMessage ? $lastestUserSendMessage->to_user_id : Auth::id();
-
-        return view('chat.index', compact('listUsers', 'lastestToUserId'));
+        return $this->serve(GetListChatsFeature::class);
     }
 
     public function addGroupCChat(Request $request)
@@ -43,59 +25,13 @@ class ChatController extends Controller
         dd($request->all());
     }
 
-    public function sendUserMessage(Request $request)
+    public function sendUserMessage(): JsonResponse
     {
-        try {
-            // SendMessageEvent::dispatch(Auth::user(), $request->to_user_id, $request->message);
-            broadcast(new SendMessageEvent(Auth::user(), $request->to_user_id, $request->message))->toOthers();
-            return response()->json([
-                'status' => 200,
-                'message' => 'success'
-            ], 200);
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => 500,
-                'message' => $e->getMessage()
-            ], 500);
-        }
+        return $this->serve(SendMessageFeature::class);
     }
 
-    public function listDetailMessageSingle($toUserId, Request $request)
+    public function listDetailMessage($toUserId): JsonResponse
     {
-        $limitRow = 10;
-        $page = $request->page ?? 1;
-        $offset = $page ? ($page - 1) * $limitRow : 0;
-
-        $this->chat->where('to_user_id', Auth::id())
-            ->where('send_user_id', $toUserId)->update([
-                'status' => Chat::STATUS_READ
-            ]);
-
-        $listMessage = $this->chat->whereNull('group_id')
-            ->with([
-                'userSendMessage:id,name,avatar',
-                'userReceiveMessage:id,name,avatar'
-            ])
-            ->where(function ($query2) use ($toUserId) {
-                $query2->where(function ($query) use ($toUserId) {
-                    $query->where('send_user_id', Auth::id())
-                        ->where('to_user_id', $toUserId);
-                })->orWhere(function ($query1) use ($toUserId) {
-                    $query1->where('to_user_id', Auth::id())
-                        ->where('send_user_id', $toUserId);
-                });
-            })
-            ->take($limitRow)
-            ->skip($offset)
-            ->orderByDesc('created_at')
-            ->get()
-            ->reverse()
-            ->values();
-
-        return response()->json([
-            'status' => 200,
-            'message' => 'success',
-            'data' => $listMessage
-        ], 200);
+        return $this->serve(GetListMessageDetailFeature::class, ['toUserId' => $toUserId]);
     }
 }

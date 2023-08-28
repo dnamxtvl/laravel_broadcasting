@@ -5,9 +5,9 @@
     </x-slot>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-toast-plugin/1.3.2/jquery.toast.css">
     <style>
-        .send-message {
+        /* .send-message {
             display: none;
-        }
+        } */
 
         .display-button {
             display: block;
@@ -604,7 +604,7 @@
 
         window.onload = function() {
             const authId = "{{Auth::id()}}"
-            const lastestToUserId = "{{$lastestToUserId}}";
+            const lastestToUserId = "{{$latestToUserId}}";
             getActiveBackgroundSelectedLastestMessage(lastestToUserId);
             getMessageSingle(lastestToUserId, 1, true);
             Echo.private('chat-single.' + authId)

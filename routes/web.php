@@ -43,6 +43,6 @@ Route::group([
     Route::group(['prefix' => 'chats'], function () {
         Route::get('/index', [ChatController::class, 'index'])->name('chats.index');
         Route::post('/send-message-to-user', [ChatController::class, 'sendUserMessage'])->name('chats.sendUserMessage');
-        Route::post('/detail-message-single/{toUserId}', [ChatController::class, 'listDetailMessageSingle'])->name('chats.listDetailMessageSingle');
+        Route::post('/detail-message-single/{toUserId}', [ChatController::class, 'listDetailMessage'])->name('chats.listDetailMessageSingle');
     });
 });

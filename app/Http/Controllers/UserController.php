@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\User;
+use App\Data\Models\User;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
+use Lucid\Units\Controller;
 
 class UserController extends Controller
 {
@@ -43,7 +45,7 @@ class UserController extends Controller
         $data = $request->except(["_token"]);
 
         $data['password'] = Hash::make($data['password']);
-        
+
         DB::beginTransaction();
         try {
             $newUser = new User();
@@ -71,8 +73,31 @@ class UserController extends Controller
 
     public function test($id)
     {
-        $user = $this->user->findOrFail($id)->name;
-
+        //compariison chunk vs chunkById
+//        $chunk = $this->user->orderBy('name')->chunk(4, function ($users) {
+//            foreach ($users as $user) {
+//                dump($user->id . ' - ' . $user->name . '<br>');
+//            }
+//            dump($users);
+//        });
+//
+//        dump('chunk By id');
+//
+//        $chunk = $this->user->orderBy('name')->chunkById(4, function ($users) {
+//            foreach ($users as $user) {
+//                dump($user->id . ' - ' . $user->name . '<br>');
+//            }
+////            dump($users);
+//        });
+//        return $this->serve(RespondWithJsonErrorJob::class, [
+//            'message' => 'Loi',
+//            'code' => 6363,
+//            'status' => ResponseAlias::HTTP_BAD_GATEWAY,
+//        ]);
+        $user = $this->user->findOrFail(92579)->name;
+//        dd(2255);
+         $testCallApi = Http::get('http://panda.local/test', []);
+         dd($testCallApi->json());
         Log::alert('Lấy dữ liệu thành công dòng ' . __LINE__);
         return response()->json([
             'success' => true,

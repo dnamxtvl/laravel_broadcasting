@@ -4,12 +4,10 @@ namespace App\Listeners;
 
 use App\Events\SendMessageEvent;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
-use App\Models\Chat;
-use Illuminate\Support\Facades\Auth;
+use App\Data\Models\Chat;
 use Illuminate\Support\Facades\Log;
 
-class SendMessageEventAction
+class SendMessageEventAction implements ShouldQueue
 {
     /**
      * Create the event listener.

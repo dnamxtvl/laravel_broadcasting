@@ -3,6 +3,7 @@
 namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Support\Facades\Log;
 use Throwable;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
@@ -13,6 +14,7 @@ class Handler extends ExceptionHandler
      *
      * @var array<class-string<\Throwable>, \Psr\Log\LogLevel::*>
      */
+    private const DEFAULT_CODE = 400;
     protected $levels = [
         //
     ];
@@ -104,21 +106,29 @@ class Handler extends ExceptionHandler
                 break;
             case 422:
                 $response['message'] = $exception->original['message'];
-                $response['errors'] = $exception->original['errors'];
+//                $response['errors'] = $exception->original['errors'];
                 break;
             default:
                 $response['message'] = ($statusCode == 500) ? 'Whoops, looks like something went wrong' : $exception->getMessage();
                 break;
         }
 
+        $error = [
+            'message' => $response['message'],
+            'code' => $exception->getCode() ?? self::DEFAULT_CODE,
+        ];
+
         if (config('app.debug')) {
-            $response['trace'] = $exception->getMessage();
-            // $response['code'] = $exception->getCode();
+            $error['trace'] = $exception->getMessage();
         }
 
-        $response['status'] = $statusCode;
-        $response['success'] = false;
+        $content = [
+            'status' => $statusCode,
+            'error' => $error,
+        ];
 
-        return response()->json($response, $statusCode);
+        Log::error($error['trace']);
+
+        return response()->json($content, $statusCode);
     }
 }

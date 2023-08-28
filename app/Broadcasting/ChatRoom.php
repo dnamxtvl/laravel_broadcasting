@@ -2,7 +2,7 @@
 
 namespace App\Broadcasting;
 
-use App\Models\User;
+use App\Data\Models\User;
 
 class ChatRoom
 {
