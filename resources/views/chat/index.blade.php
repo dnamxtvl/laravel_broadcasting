@@ -47,9 +47,29 @@
         .button-search-user {
             margin-left: 10px;
         }
+
+        .d-none {
+            display: none;
+        }
+
+        .emoji-icon {
+            position: absolute;
+            right: 10px;
+            margin-top: -450px;
+        }
+
+        .button-select-user-id {
+            width: 200px;
+        }
+
+        .dropdown-option-with-user {
+            position: absolute;
+            margin-top: 140px;
+        }
     </style>
     @vite('resources/css/loading.css')
     @vite('resources/css/toast.css')
+    @vite('resources/css/.css')
     @if (session('success'))
     <div class="max-w-4xl mx-auto mt-8 bg-green-700 text-white p-3 rounded-lg">
         {{ session('success') }}
@@ -113,15 +133,27 @@
                         <input type="hidden" value="" id="curent-length-load-more-message-detail" />
                         @if ($listUsers->count())
                         @foreach ($listUsers as $user)
-                        <button class="button-select-user-id flex flex-row items-center hover:bg-gray-100 rounded-xl p-2" data-id="{{ $user->id }}">
-                            <div class="flex items-center justify-center h-8 w-8 bg-gray-200 rounded-full">
-                                {{ strtoupper($user->name[0]) }}
+                            <div class="flex flex-row justify-between">
+                                <button class="button-select-user-id flex flex-row items-center hover:bg-gray-100 rounded-xl p-2" data-id="{{ $user->id }}">
+                                    <div class="flex items-center justify-center h-8 w-8 bg-gray-200 rounded-full">
+                                        {{ strtoupper($user->name[0]) }}
+                                    </div>
+                                    <div class="ml-2 text-sm font-semibold">{{ Auth::id() == $user->id ? 'My account' : $user->name }}</div>
+                                    <div class="flex items-center justify-center ml-auto text-xs text-white bg-red-500 h-4 w-4 rounded leading-none <?php echo "count-message-unread" . $user->id; ?>">
+                                        {{ $user->unread_message }}
+                                    </div>
+                                </button>
+                                <span class="droplist-button inline-flex justify-center items-center bg-white text-sm hover:text-gray-500 focus:outline-none focus:border-blue-300 focus:shadow-outline-blue active:bg-gray-50 active:text-gray-800 transition ease-in-out duration-150">
+                                    <svg class="-mr-1 ml-2 h-5 w-5 drop-list-option-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                    <div class="rounded-md bg-white shadow-xs dropdown-option-with-user" style="display: none">
+                                        <div class="py-1" role="menu" aria-orientation="vertical" aria-labelledby="menu-button">
+                                          <a href="#" class="button-block-user block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900" role="menuitem">Block</a>
+                                        </div>
+                                    </div>
+                                </span>
                             </div>
-                            <div class="ml-2 text-sm font-semibold">{{ Auth::id() == $user->id ? 'My account' : $user->name }}</div>
-                            <div class="flex items-center justify-center ml-auto text-xs text-white bg-red-500 h-4 w-4 rounded leading-none <?php echo "count-message-unread" . $user->id; ?>">
-                                {{ $user->unread_message }}
-                            </div>
-                        </button>
                         @endforeach
                         @endif
                     </div>
@@ -144,142 +176,6 @@
                     <div class="flex flex-col h-full overflow-x-auto mb-4 detail-scroll-message">
                         <div class="flex flex-col h-full" id="list-content-message">
                             <div class="grid grid-cols-12 gap-y-2" id="content-message-detail">
-                                <!-- list message -->
-                                <!-- <div class="col-start-1 col-end-8 p-3 rounded-lg">
-                                    <div class="flex flex-row items-center">
-                                        <div class="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
-                                            A
-                                        </div>
-                                        <div class="relative ml-3 text-sm bg-white py-2 px-4 shadow rounded-xl">
-                                            <div>Hey How are you today?</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-start-1 col-end-8 p-3 rounded-lg">
-                                    <div class="flex flex-row items-center">
-                                        <div class="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
-                                            A
-                                        </div>
-                                        <div class="relative ml-3 text-sm bg-white py-2 px-4 shadow rounded-xl">
-                                            <div>
-                                                Lorem ipsum dolor sit amet, consectetur adipisicing
-                                                elit. Vel ipsa commodi illum saepe numquam maxime
-                                                asperiores voluptate sit, minima perspiciatis.
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-start-6 col-end-13 p-3 rounded-lg">
-                                    <div class="flex items-center justify-start flex-row-reverse">
-                                        <div class="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
-                                            A
-                                        </div>
-                                        <div class="relative mr-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl">
-                                            <div>I'm ok what about you?</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-start-6 col-end-13 p-3 rounded-lg">
-                                    <div class="flex items-center justify-start flex-row-reverse">
-                                        <div class="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
-                                            A
-                                        </div>
-                                        <div class="relative mr-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl">
-                                            <div>
-                                                Lorem ipsum dolor sit, amet consectetur adipisicing. ?
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-start-1 col-end-8 p-3 rounded-lg">
-                                    <div class="flex flex-row items-center">
-                                        <div class="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
-                                            A
-                                        </div>
-                                        <div class="relative ml-3 text-sm bg-white py-2 px-4 shadow rounded-xl">
-                                            <div>Lorem ipsum dolor sit amet !</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-start-6 col-end-13 p-3 rounded-lg">
-                                    <div class="flex items-center justify-start flex-row-reverse">
-                                        <div class="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
-                                            A
-                                        </div>
-                                        <div class="relative mr-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl">
-                                            <div>
-                                                Lorem ipsum dolor sit, amet consectetur adipisicing. ?
-                                            </div>
-                                            <div class="absolute text-xs bottom-0 right-0 -mb-5 mr-2 text-gray-500">
-                                                Seen
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-start-1 col-end-8 p-3 rounded-lg">
-                                    <div class="flex flex-row items-center">
-                                        <div class="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
-                                            A
-                                        </div>
-                                        <div class="relative ml-3 text-sm bg-white py-2 px-4 shadow rounded-xl">
-                                            <div>
-                                                Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                                                Perspiciatis, in.
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-start-1 col-end-8 p-3 rounded-lg">
-                                    <div class="flex flex-row items-center">
-                                        <div class="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
-                                            A
-                                        </div>
-                                        <div class="relative ml-3 text-sm bg-white py-2 px-4 shadow rounded-xl">
-                                            <div class="flex flex-row items-center">
-                                                <button class="flex items-center justify-center bg-indigo-600 hover:bg-indigo-800 rounded-full h-8 w-10">
-                                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                                    </svg>
-                                                </button>
-                                                <div class="flex flex-row items-center space-x-px ml-4">
-                                                    <div class="h-2 w-1 bg-gray-500 rounded-lg"></div>
-                                                    <div class="h-2 w-1 bg-gray-500 rounded-lg"></div>
-                                                    <div class="h-4 w-1 bg-gray-500 rounded-lg"></div>
-                                                    <div class="h-8 w-1 bg-gray-500 rounded-lg"></div>
-                                                    <div class="h-8 w-1 bg-gray-500 rounded-lg"></div>
-                                                    <div class="h-10 w-1 bg-gray-500 rounded-lg"></div>
-                                                    <div class="h-10 w-1 bg-gray-500 rounded-lg"></div>
-                                                    <div class="h-12 w-1 bg-gray-500 rounded-lg"></div>
-                                                    <div class="h-10 w-1 bg-gray-500 rounded-lg"></div>
-                                                    <div class="h-6 w-1 bg-gray-500 rounded-lg"></div>
-                                                    <div class="h-5 w-1 bg-gray-500 rounded-lg"></div>
-                                                    <div class="h-4 w-1 bg-gray-500 rounded-lg"></div>
-                                                    <div class="h-3 w-1 bg-gray-500 rounded-lg"></div>
-                                                    <div class="h-2 w-1 bg-gray-500 rounded-lg"></div>
-                                                    <div class="h-2 w-1 bg-gray-500 rounded-lg"></div>
-                                                    <div class="h-2 w-1 bg-gray-500 rounded-lg"></div>
-                                                    <div class="h-10 w-1 bg-gray-500 rounded-lg"></div>
-                                                    <div class="h-2 w-1 bg-gray-500 rounded-lg"></div>
-                                                    <div class="h-10 w-1 bg-gray-500 rounded-lg"></div>
-                                                    <div class="h-8 w-1 bg-gray-500 rounded-lg"></div>
-                                                    <div class="h-8 w-1 bg-gray-500 rounded-lg"></div>
-                                                    <div class="h-1 w-1 bg-gray-500 rounded-lg"></div>
-                                                    <div class="h-1 w-1 bg-gray-500 rounded-lg"></div>
-                                                    <div class="h-2 w-1 bg-gray-500 rounded-lg"></div>
-                                                    <div class="h-8 w-1 bg-gray-500 rounded-lg"></div>
-                                                    <div class="h-8 w-1 bg-gray-500 rounded-lg"></div>
-                                                    <div class="h-2 w-1 bg-gray-500 rounded-lg"></div>
-                                                    <div class="h-2 w-1 bg-gray-500 rounded-lg"></div>
-                                                    <div class="h-2 w-1 bg-gray-500 rounded-lg"></div>
-                                                    <div class="h-2 w-1 bg-gray-500 rounded-lg"></div>
-                                                    <div class="h-4 w-1 bg-gray-500 rounded-lg"></div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div> -->
-                                <!-- end list message -->
                             </div>
                         </div>
                     </div>
@@ -294,11 +190,12 @@
                         <div class="flex-grow ml-4">
                             <div class="relative w-full">
                                 <input type="text" class="input-message flex w-full border rounded-xl focus:outline-none focus:border-indigo-300 pl-4 h-10" />
-                                <button class="absolute flex items-center justify-center h-full w-12 right-0 top-0 text-gray-400 hover:text-gray-600">
+                                <button id="emojiButton" class="absolute flex items-center justify-center h-full w-12 right-0 top-0 text-gray-400 hover:text-gray-600">
                                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                     </svg>
                                 </button>
+                                <emoji-picker class="emoji-icon d-none"></emoji-picker>
                             </div>
                         </div>
                         <div class="ml-4">
@@ -318,10 +215,35 @@
     </div>
     @vite('resources/js/bootstrap.js')
     @vite('resources/js/toast.js')
+    <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-toast-plugin/1.3.2/jquery.toast.min.js"></script>
     <script>
         $(document).ready(function() {
+            let showEmoji = false;
+            let showListOption = false;
+            $('#emojiButton').click(function () {
+                showEmoji = !showEmoji;
+                openCloseEmoji();
+            });
+            function openCloseEmoji() {
+                if (showEmoji) {
+                    $('.emoji-icon').removeClass('d-none');
+                } else {
+                    $('.emoji-icon').addClass('d-none');
+                }
+            }
+            $('.drop-list-option-icon').click(function () {
+                showListOption = !showListOption
+                $('.dropdown-option-with-user').css('display', 'none');
+                if (showListOption) {
+                    $(this).next().css('display', 'block');
+                }
+            });
+            document.querySelector('emoji-picker')
+                .addEventListener('emoji-click', function (event) {
+                    $('.input-message').val($('.input-message').val() + event.detail.unicode);
+                });
             var page = 1;
             $('.loading').css('display', 'none');
             $('.input-message').on('change', function() {
@@ -350,6 +272,8 @@
             });
 
             $('.input-message').click(function() {
+                showEmoji = false;
+                openCloseEmoji();
                 readMessageSingleCurrentUser($('#current-send-user-id').val());
             });
 
@@ -366,6 +290,8 @@
             });
 
             $('.send-message').click(function() {
+                showEmoji = false;
+                openCloseEmoji();
                 var message = $('.input-message').val();
                 if (!message) {
                     $.toast({
@@ -393,6 +319,9 @@
             $.ajax({
                 url: getDetailMessageSingle,
                 type: 'post',
+                headers: {
+                    'Accept': 'application/json',
+                },
                 data: {
                     "_token": "{{ csrf_token() }}",
                     "page": page
@@ -432,9 +361,10 @@
                     }
                     $('.loading').css('display', 'none');
                 },
-                error: function() {
+                error: function(err) {
                     $('.loading').css('display', 'none');
-                    alert('Đã xảy ra lỗi');
+                    alert(err.responseJSON.error.message);
+                    window.location.reload();
                 }
             });
         }
@@ -578,6 +508,9 @@
             $.ajax({
                 url: sendMessageUrl,
                 type: "post",
+                headers: {
+                    'Accept': 'application/json',
+                },
                 data: {
                     "_token": "{{ csrf_token() }}",
                     "message": message,
@@ -596,8 +529,8 @@
                         $('.content-message-popup-parent[data-id="' + sendToUserId + '"]').remove();
                     }
                 },
-                error: function() {
-                    alert('Đã xảy ra lỗi!Message chưa đc gửi!');
+                error: function(err) {
+                    alert(err.responseJSON.error.message);
                 }
             });
         }

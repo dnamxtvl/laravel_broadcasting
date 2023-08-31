@@ -4,7 +4,7 @@ namespace App\Data\Repository;
 
 use App\Data\Models\Chat;
 use App\Domains\Chat\Enums\StatusEnums;
-use App\Domains\User\Repository\ChatRepositoryInterface;
+use App\Domains\Chat\Repository\ChatRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 

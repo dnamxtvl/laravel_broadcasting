@@ -4,6 +4,7 @@ namespace App\Data\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Chat extends Model
 {
@@ -22,12 +23,12 @@ class Chat extends Model
         'group_id'
     ];
 
-    public function userSendMessage()
+    public function userSendMessage(): BelongsTo
     {
         return $this->belongsTo(User::class, 'send_user_id', 'id');
     }
 
-    public function userReceiveMessage()
+    public function userReceiveMessage(): BelongsTo
     {
         return $this->belongsTo(User::class, 'to_user_id', 'id');
     }

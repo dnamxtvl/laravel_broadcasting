@@ -2,6 +2,7 @@
 
 namespace App\Domains\User\Jobs;
 
+use App\Domains\User\Enums\UserStatusEnum;
 use App\Domains\User\Repository\UserRepositoryInterface;
 use Illuminate\Database\Eloquent\Model;
 use Lucid\Units\Job;
@@ -19,6 +20,16 @@ class FindUserJob extends Job
 
     public function handle(UserRepositoryInterface $userRepository): Model|null
     {
-        return $userRepository->findById(id: $this->userId);
+        $user = $userRepository->findById(id: $this->userId);
+
+        if (is_null($user)) {
+            return null;
+        }
+
+        if ($user->status != UserStatusEnum::STATUS_ACTIVE->value) {
+            return null;
+        }
+
+        return $user;
     }
 }

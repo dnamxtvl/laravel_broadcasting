@@ -23,14 +23,14 @@ class GetListMessageDetailFeature extends Feature
 
     public function handle(Request $request): JsonResponse
     {
-        $limitRow = 10;
+        $limitRow = config('chat.limit_row_message');
         $page = $request->page ?? self::DEFAULT_PAGE;
         $offset = ($page - self::DEFAULT_PAGE) * $limitRow;
 
         $this->run(new ChangeStatusJob(
             fromUserId: Auth::id(),
             toUserId: $this->toUserId,
-            status: StatusEnums::STATUS_UNREAD
+            status: StatusEnums::STATUS_READ
         ));
 
         $listMessage = $this->run(new GetDetailMessageJob(

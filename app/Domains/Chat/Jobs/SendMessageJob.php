@@ -2,9 +2,7 @@
 
 namespace App\Domains\Chat\Jobs;
 
-use App\Domains\User\Repository\UserRepositoryInterface;
 use App\Events\SendMessageEvent;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 use Lucid\Units\Job;
 

@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use Lucid\Units\Controller;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class UserController extends Controller
 {
@@ -94,6 +95,7 @@ class UserController extends Controller
 //            'code' => 6363,
 //            'status' => ResponseAlias::HTTP_BAD_GATEWAY,
 //        ]);
+        throw new NotFoundHttpException('Không tồn tại user');
         $user = $this->user->findOrFail(92579)->name;
 //        dd(2255);
          $testCallApi = Http::get('http://panda.local/test', []);

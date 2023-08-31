@@ -6,8 +6,8 @@ use App\Features\GetListChatsFeature;
 use App\Features\GetListMessageDetailFeature;
 use App\Features\SendMessageFeature;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Lucid\Units\Controller;
+use Illuminate\Contracts\View\View;
 
 class ChatController extends Controller
 {
@@ -15,14 +15,9 @@ class ChatController extends Controller
     public function __construct()
     {}
 
-    public function index()
+    public function index(): View
     {
         return $this->serve(GetListChatsFeature::class);
-    }
-
-    public function addGroupCChat(Request $request)
-    {
-        dd($request->all());
     }
 
     public function sendUserMessage(): JsonResponse

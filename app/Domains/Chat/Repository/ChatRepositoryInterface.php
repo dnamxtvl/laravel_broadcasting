@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domains\User\Repository;
+namespace App\Domains\Chat\Repository;
 
 use App\Domains\Chat\Enums\StatusEnums;
 use Illuminate\Database\Eloquent\Collection;

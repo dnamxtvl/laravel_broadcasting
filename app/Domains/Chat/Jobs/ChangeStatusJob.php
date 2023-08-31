@@ -3,7 +3,7 @@
 namespace App\Domains\Chat\Jobs;
 
 use App\Domains\Chat\Enums\StatusEnums;
-use App\Domains\User\Repository\ChatRepositoryInterface;
+use App\Domains\Chat\Repository\ChatRepositoryInterface;
 use Lucid\Units\Job;
 
 class ChangeStatusJob extends Job
