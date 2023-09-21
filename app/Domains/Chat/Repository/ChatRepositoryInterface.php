@@ -12,4 +12,10 @@ interface ChatRepositoryInterface
     public function changeStatus(int $fromUserId, int $toUserId, StatusEnums $status): void;
 
     public function getMessageDetail(int $fromUserId, int $toUserId, int $limit, int $offset): Collection;
+
+    public function deleteConversation(int $fromUserId, int $toUserId): void;
+
+    public function emptyConversation(int $fromUserId, int $toUserId): bool;
+
+    public function restoreConversation(int $fromUserId, int $toUserId): void;
 }

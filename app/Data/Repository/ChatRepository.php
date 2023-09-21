@@ -7,6 +7,7 @@ use App\Domains\Chat\Enums\StatusEnums;
 use App\Domains\Chat\Repository\ChatRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 
 class ChatRepository implements ChatRepositoryInterface
 {
@@ -26,7 +27,8 @@ class ChatRepository implements ChatRepositoryInterface
     {
         $this->chat->query()
             ->where('to_user_id', $fromUserId)
-            ->where('send_user_id', $toUserId)->update(
+            ->where('send_user_id', $toUserId)
+            ->update(
                 [
                     'status' => $status->value
                 ]
@@ -54,5 +56,32 @@ class ChatRepository implements ChatRepositoryInterface
             ->skip($offset)
             ->orderByDesc('created_at')
             ->get();
+    }
+
+    public function deleteConversation(int $fromUserId, int $toUserId): void
+    {
+        $this->builderConversationByFromIdAndUserId(fromUserId: $fromUserId, toUserId: $toUserId)->delete();
+    }
+
+    public function restoreConversation(int $fromUserId, int $toUserId): void
+    {
+        $this->builderConversationByFromIdAndUserIdWithTrashed(fromUserId: $fromUserId, toUserId: $toUserId)->restore();
+    }
+
+    public function emptyConversation(int $fromUserId, int $toUserId): bool
+    {
+        return $this->builderConversationByFromIdAndUserId(fromUserId: $fromUserId, toUserId: $toUserId)->exists();
+    }
+
+    private function builderConversationByFromIdAndUserId(int $fromUserId, int $toUserId): Builder
+    {
+        return $this->chat->query()
+            ->where('send_user_id', $fromUserId)
+            ->where('to_user_id', $toUserId);
+    }
+
+    private function builderConversationByFromIdAndUserIdWithTrashed(int $fromUserId, int $toUserId): Builder
+    {
+        return $this->builderConversationByFromIdAndUserId(fromUserId: $fromUserId, toUserId: $toUserId)->whereNotNull('deleted_at');
     }
 }

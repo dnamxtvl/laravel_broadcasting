@@ -44,5 +44,7 @@ Route::group([
         Route::get('/index', [ChatController::class, 'index'])->name('chats.index');
         Route::post('/send-message-to-user', [ChatController::class, 'sendUserMessage'])->name('chats.sendUserMessage');
         Route::post('/detail-message-single/{toUserId}', [ChatController::class, 'listDetailMessage'])->name('chats.listDetailMessageSingle');
+        Route::post('/block-user', [ChatController::class, 'blockUser'])->name('chats.blockUser');
+        Route::post('/un-block-user', [ChatController::class, 'unBlockUser'])->name('chats.blockUser');
     });
 });

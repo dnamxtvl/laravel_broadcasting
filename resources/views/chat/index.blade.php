@@ -226,6 +226,7 @@
                 showEmoji = !showEmoji;
                 openCloseEmoji();
             });
+
             function openCloseEmoji() {
                 if (showEmoji) {
                     $('.emoji-icon').removeClass('d-none');
@@ -233,6 +234,7 @@
                     $('.emoji-icon').addClass('d-none');
                 }
             }
+
             $('.drop-list-option-icon').click(function () {
                 showListOption = !showListOption
                 $('.dropdown-option-with-user').css('display', 'none');
@@ -240,10 +242,12 @@
                     $(this).next().css('display', 'block');
                 }
             });
+
             document.querySelector('emoji-picker')
                 .addEventListener('emoji-click', function (event) {
                     $('.input-message').val($('.input-message').val() + event.detail.unicode);
                 });
+
             var page = 1;
             $('.loading').css('display', 'none');
             $('.input-message').on('change', function() {
