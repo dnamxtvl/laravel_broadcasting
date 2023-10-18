@@ -28,7 +28,7 @@ class CheckValidUserCanSendMessageOperation extends Operation
 
         $checkIsBlocked = $this->run(new CheckIsBlockedJob(toUserId: $this->toUserId));
         if (! $checkIsBlocked) {
-            throw new AccessDeniedHttpException('Không thể gửi tin nhắn cho người này');
+            throw new AccessDeniedHttpException('Bạn và họ đã block nhau từ trước!');
         }
     }
 }

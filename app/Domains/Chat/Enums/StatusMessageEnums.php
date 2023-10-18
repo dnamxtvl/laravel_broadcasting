@@ -2,7 +2,7 @@
 
 namespace App\Domains\Chat\Enums;
 
-enum StatusEnums: int
+enum StatusMessageEnums: int
 {
     case STATUS_UNREAD = 0;
     case STATUS_READ = 1;

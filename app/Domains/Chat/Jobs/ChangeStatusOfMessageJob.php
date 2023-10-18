@@ -2,11 +2,11 @@
 
 namespace App\Domains\Chat\Jobs;
 
-use App\Domains\Chat\Enums\StatusEnums;
+use App\Domains\Chat\Enums\StatusMessageEnums;
 use App\Domains\Chat\Repository\ChatRepositoryInterface;
 use Lucid\Units\Job;
 
-class ChangeStatusJob extends Job
+class ChangeStatusOfMessageJob extends Job
 {
     /**
      * Create a new job instance.
@@ -16,7 +16,7 @@ class ChangeStatusJob extends Job
     public function __construct(
         private readonly int $fromUserId,
         private readonly int $toUserId,
-        private readonly StatusEnums $status
+        private readonly StatusMessageEnums $status
     ) {}
 
     public function handle(ChatRepositoryInterface $chatRepository): void

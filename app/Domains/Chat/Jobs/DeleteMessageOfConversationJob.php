@@ -3,7 +3,6 @@
 namespace App\Domains\Chat\Jobs;
 
 use App\Domains\Chat\Repository\ChatRepositoryInterface;
-use App\Domains\User\Repository\UserBlockRepositoryInterface;
 use Lucid\Units\Job;
 
 class DeleteMessageOfConversationJob extends Job

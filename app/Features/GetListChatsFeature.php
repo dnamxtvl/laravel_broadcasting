@@ -11,13 +11,13 @@ use Lucid\Units\Feature;
 class GetListChatsFeature extends Feature
 {
     public function __construct(
-    ) {
-    }
+    ) {}
 
     public function handle(): View
     {
-        $listUsers = $this->run(new GetListChatJob(userId: Auth::id()));
-        $latestToUserId = $this->run(new GetLatestUserIdSendMessageJob(userId: Auth::id()));
+        $userId = Auth::id();
+        $listUsers = $this->run(new GetListChatJob(userId: $userId));
+        $latestToUserId = $this->run(new GetLatestUserIdSendMessageJob(userId: $userId));
 
         return view('chat.index', compact('listUsers', 'latestToUserId'));
     }

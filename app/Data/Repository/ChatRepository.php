@@ -3,7 +3,7 @@
 namespace App\Data\Repository;
 
 use App\Data\Models\Chat;
-use App\Domains\Chat\Enums\StatusEnums;
+use App\Domains\Chat\Enums\StatusMessageEnums;
 use App\Domains\Chat\Repository\ChatRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -23,11 +23,12 @@ class ChatRepository implements ChatRepositoryInterface
             ->first();
     }
 
-    public function changeStatus(int $fromUserId, int $toUserId, StatusEnums $status): void
+    public function changeStatus(int $fromUserId, int $toUserId, StatusMessageEnums $status): void
     {
         $this->chat->query()
             ->where('to_user_id', $fromUserId)
             ->where('send_user_id', $toUserId)
+            ->where('status', StatusMessageEnums::STATUS_UNREAD->value)
             ->update(
                 [
                     'status' => $status->value

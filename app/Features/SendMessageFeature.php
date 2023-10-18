@@ -27,10 +27,7 @@ class SendMessageFeature extends Feature
             $this->run(new CheckValidUserCanSendMessageOperation(toUserId: $toUserId));
             $this->run(new SendMessageJob(toUserId: $toUserId, message: $request->input('message')));
 
-            return $this->run(new RespondWithJsonJob(
-                content: [],
-                status: Response::HTTP_OK
-            ));
+            return $this->run(new RespondWithJsonJob(content: [], status: Response::HTTP_OK));
         } catch (Exception $exception) {
             return $this->run(new RespondWithJsonErrorJob(
                 message: $exception->getMessage(),

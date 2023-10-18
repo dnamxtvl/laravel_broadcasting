@@ -18,8 +18,7 @@ use Symfony\Component\HttpFoundation\Response;
 class BlockUserFeature extends Feature
 {
     public function __construct(
-    ) {
-    }
+    ) {}
 
     public function handle(BlockUserRequest $request): JsonResponse
     {
