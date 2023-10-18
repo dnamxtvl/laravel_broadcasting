@@ -41,6 +41,6 @@ class GetListMessageDetailFeature extends Feature
             offset: $offset
         ));
 
-        return $this->run(new RespondWithJsonJob($listMessage, Response::HTTP_OK));
+        return $this->run(new RespondWithJsonJob(content: $listMessage, status: Response::HTTP_OK));
     }
 }
