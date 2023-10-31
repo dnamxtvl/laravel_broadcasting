@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Policies;
+namespace App\Domains\User\Policies;
 
 use App\Data\Models\User;
 use App\Data\Models\UserBlock;
