@@ -2,10 +2,11 @@
 
 namespace App\Operations;
 
+use App\Domains\User\Enums\UserExceptionEnum;
+use App\Domains\User\Exceptions\UserNotFoundException;
 use App\Domains\User\Jobs\CheckIsBlockedJob;
 use Lucid\Units\Operation;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use App\Domains\User\Jobs\FindUserJob;
 
 class CheckValidUserCanSendMessageOperation extends Operation
@@ -23,7 +24,7 @@ class CheckValidUserCanSendMessageOperation extends Operation
     {
         $user = $this->run(new FindUserJob(userId: $this->toUserId));
         if (is_null($user)) {
-            throw new NotFoundHttpException('Không tồn tại user!');
+            throw new UserNotFoundException(code: UserExceptionEnum::USER_NOT_FOUND_WHEN_CHECK_VALID_USER->value);
         }
 
         $checkIsBlocked = $this->run(new CheckIsBlockedJob(toUserId: $this->toUserId));
