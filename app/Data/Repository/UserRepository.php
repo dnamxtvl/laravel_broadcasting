@@ -5,9 +5,11 @@ namespace App\Data\Repository;
 use App\Data\Models\User;
 use App\Domains\User\Repository\UserRepositoryInterface;
 use App\Data\Models\Chat;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Pipeline\Pipeline;
+use App\Data\Pipelines\UserNameFilter;
 
 class UserRepository implements UserRepositoryInterface
 {
@@ -15,6 +17,16 @@ class UserRepository implements UserRepositoryInterface
         private readonly User $user,
         private readonly Chat $chat
     ) {}
+
+    public function getQuery(array $filters = []): Builder
+    {
+        return app(Pipeline::class)
+            ->send($this->user->query())
+            ->through([
+                UserNameFilter::class,
+            ])
+            ->thenReturn();
+    }
 
     public function getListUserHasConversation(int $userId): Collection
     {

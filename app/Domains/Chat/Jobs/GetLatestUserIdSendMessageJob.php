@@ -3,8 +3,6 @@
 namespace App\Domains\Chat\Jobs;
 
 use App\Domains\Chat\Repository\ChatRepositoryInterface;
-use App\Domains\User\Repository\UserRepositoryInterface;
-use Illuminate\Database\Eloquent\Collection;
 use Lucid\Units\Job;
 
 class GetLatestUserIdSendMessageJob extends Job
