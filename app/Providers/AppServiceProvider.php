@@ -22,6 +22,10 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(UserRepositoryInterface::class, UserRepository::class);
         $this->app->singleton(ChatRepositoryInterface::class, ChatRepository::class);
         $this->app->singleton(UserBlockRepositoryInterface::class, UserBlockRepository::class);
+        if ($this->app->environment('local')) {
+            $this->app->register(\Laravel\Telescope\TelescopeServiceProvider::class);
+            $this->app->register(TelescopeServiceProvider::class);
+        }
     }
 
     /**
