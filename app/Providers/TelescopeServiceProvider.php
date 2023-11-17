@@ -7,7 +7,6 @@ use Laravel\Telescope\IncomingEntry;
 use Laravel\Telescope\Telescope;
 use Laravel\Telescope\TelescopeApplicationServiceProvider;
 use App\Data\Models\User;
-use Illuminate\Support\Facades\Auth;
 
 class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
 {
@@ -16,7 +15,7 @@ class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
      */
     public function register(): void
     {
-        Telescope::night(); // dark mode
+        //Telescope::night(); // dark mode
 
         $this->hideSensitiveRequestDetails();
 
