@@ -8,7 +8,6 @@ export default defineConfig({
                 'resources/css/loading.css',
                 'resources/css/toast.css',
                 'resources/css/app.css',
-                'resources/css/emoji.css.css',
                 'resources/js/app.js',
                 'resources/js/toast.js',
                 'resources/js/chat.js',
