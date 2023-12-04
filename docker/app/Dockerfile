@@ -37,7 +37,7 @@ RUN docker-php-ext-install curl
 RUN docker-php-ext-install sockets
 
 # Thiết lập thư mục gốc của Apache
-ENV APACHE_DOCUMENT_ROOT /var/www/html/crm-ob-be/public
+ENV APACHE_DOCUMENT_ROOT /var/www/html/laravel_broadcasting/public
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
 RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
