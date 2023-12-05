@@ -31,6 +31,6 @@ class TestJob implements ShouldQueue
      */
     public function handle()
     {
-        Log::info('test ahihihi sau khi cap nhat de test jenkins lan thu 5 rrrsadfaf');
+        Log::info('test ahihihi sau khi cap nhat de test jenkins lan thu 5 rrrsadfaf toi test cuoi');
     }
 }
