@@ -5,8 +5,11 @@ export default defineConfig({
     plugins: [
         laravel({
             input: [
+                'resources/css/loading.css',
+                'resources/css/toast.css',
                 'resources/css/app.css',
                 'resources/js/app.js',
+                'resources/js/toast.js',
             ],
             refresh: true,
         }),

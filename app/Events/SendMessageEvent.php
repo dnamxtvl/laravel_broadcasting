@@ -2,6 +2,7 @@
 
 namespace App\Events;
 
+use App\Models\User;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
@@ -15,28 +16,20 @@ class SendMessageEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $user;
-    public $toUserId;
-    public $message;
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct($user, $toUserId, $message)
-    {
-        $this->user = $user;
-        $this->toUserId = $toUserId;
-        $this->message = $message;
-    }
+    public function __construct(
+        public readonly User $user,
+        public readonly string $conversationId,
+        public readonly bool $isFirstMessage,
+        public readonly string $message
+    ) {}
 
-    /**
-     * Get the channels the event should broadcast on.
-     *
-     * @return \Illuminate\Broadcasting\Channel|array
-     */
-    public function broadcastOn()
+    public function broadcastOn(): PrivateChannel
     {
-        return new PrivateChannel('chat-single');
+        return new PrivateChannel('chat-single.' . $this->user->id);
     }
 }

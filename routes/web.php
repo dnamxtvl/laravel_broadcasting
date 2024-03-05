@@ -1,10 +1,7 @@
 <?php
 
-use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\RoleController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\GoogleController;
 use App\Http\Controllers\ChatController;
 
 /*
@@ -22,9 +19,6 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/get-google-sign-in-url', [GoogleController::class, 'getGoogleSignInUrl'])->name('getLogInUrl');
-Route::get('/google/callback', [GoogleController::class, 'loginCallback'])->name('loginGoogleCallback');
-
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
@@ -32,17 +26,12 @@ Route::get('/dashboard', function () {
 require __DIR__ . '/auth.php';
 
 Route::group([
-    'middleware' => ['auth', 'verified'],
-    'prefix' => 'admin'
+    'middleware' => ['auth', 'verified']
 ], function () {
-    Route::resource('articles', ArticleController::class);
     Route::resource('users', UserController::class);
-    Route::get('export-user/2', [UserController::class, 'test'])->name('users.exportUser');
-    Route::resource('roles', RoleController::class);
-    // Route::get('/index', [ChatController::class, 'index'])->name('chats.index');
-    Route::group(['prefix' => 'chats'], function () {
-        Route::get('/index', [ChatController::class, 'index'])->name('chats.index');
-        Route::post('/send-message-to-user', [ChatController::class, 'sendUserMessage'])->name('chats.sendUserMessage');
-        Route::get('/detail-message-single/{toUserId}', [ChatController::class, 'listDetailMessageSingle'])->name('chats.listDetailMessageSingle');
+    Route::group(['prefix' => 'chat'], function () {
+        Route::get('/list-conversation', [ChatController::class, 'listConversation'])->name('chats.listConversation');
+        Route::post('/send-message', [ChatController::class, 'sendMessage'])->name('chats.sendMessage');
+        Route::get('/get-message-of-conversation/{conversationId}', [ChatController::class, 'getMessageOfConversation'])->name('chats.getMessageOfConversation');
     });
 });

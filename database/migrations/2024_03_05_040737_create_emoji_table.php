@@ -11,13 +11,13 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::create('articles', function (Blueprint $table) {
+        Schema::create('emoji', function (Blueprint $table) {
             $table->id();
-            $table->string('title')->unique();
-            $table->text('content')->nullable();
-            $table->string('cover_image');
+            $table->string('name');
+            $table->string('icon');
+            $table->tinyInteger('type')->default(config('message.emoji_type.message_reaction'));
             $table->timestamps();
         });
     }
@@ -27,8 +27,8 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::dropIfExists('articles');
+        Schema::dropIfExists('emoji');
     }
 };

@@ -2,12 +2,12 @@
 
 namespace App\Providers;
 
+use App\Events\SaveMessageEvent;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
-use Illuminate\Support\Facades\Event;
 use App\Events\SendMessageEvent;
-use App\Listeners\SendMessageEventAction;
+use App\Listeners\SaveMessageEventAction;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -21,8 +21,8 @@ class EventServiceProvider extends ServiceProvider
             SendEmailVerificationNotification::class,
         ],
 
-        SendMessageEvent::class => [
-            SendMessageEventAction::class
+        SaveMessageEvent::class => [
+            SaveMessageEventAction::class
         ]
     ];
 

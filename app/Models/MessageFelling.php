@@ -10,9 +10,5 @@ class MessageFelling extends Model
     use HasFactory;
 
     protected $table = 'message_fellings';
-
-    protected $fillable = [
-        'icon',
-        'color'
-    ];
+    protected $primaryKey = 'id';
 }

@@ -3,16 +3,33 @@
     <x-slot name="pageTitle">
         Role List
     </x-slot>
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-toast-plugin/1.3.2/jquery.toast.css">
     <style>
-        .send-message {
-            display: none;
+        /*.send-message {*/
+        /*    display: none;*/
+        /*}*/
+
+        .detail-scroll-message {
+            height: 80%;
         }
 
-        .display-button {
-            display: block;
+        .list-toast-send-message {
+            position: absolute;
+            right: 20px;
+            bottom: 40px;
+            z-index: 9999;
+        }
+
+        .toast-entity {
+            margin-top: 10px;
+        }
+
+        #toast-created {
+            margin-left: 50px !important;
         }
     </style>
+    @vite('resources/css/loading.css')
+    @vite('resources/css/toast.css')
     @if (session('success'))
     <div class="max-w-4xl mx-auto mt-8 bg-green-700 text-white p-3 rounded-lg">
         {{ session('success') }}
@@ -22,7 +39,16 @@
     <p class="alert alert-danger">{{ Session::get('error') }}</p>
     @endif
     <!-- This is an example component -->
+    <!-- toast -->
+    <div class="list-toast-send-message">
+        <!-- content -->
+    </div>
+
+    <!-- end toast -->
     <div class="flex h-screen antialiased text-gray-800">
+        <!-- loading -->
+        <div class="loading">Loading&#8230;</div>
+        <!-- end loading -->
         <div class="flex flex-row h-full w-full overflow-x-hidden">
             <div class="flex flex-col py-8 pl-6 pr-2 w-64 bg-white flex-shrink-0">
                 <div class="flex flex-row items-center justify-center h-12 w-full">
@@ -60,194 +86,31 @@
                         <span class="flex items-center justify-center bg-gray-300 h-4 w-4 rounded-full">4</span>
                     </div>
                     <div class="flex flex-col space-y-1 mt-4 -mx-2 h-48 overflow-y-auto">
-                        <button class="flex flex-row items-center hover:bg-gray-100 rounded-xl p-2">
-                            <div class="flex items-center justify-center h-8 w-8 bg-indigo-200 rounded-full">
-                                H
-                            </div>
-                            <div class="ml-2 text-sm font-semibold">Henry Boyd</div>
-                        </button>
-                        <button class="flex flex-row items-center hover:bg-gray-100 rounded-xl p-2">
+                        <input type="hidden" value="" id="current-send-user-id" />
+                        <input type="hidden" value="0" id="curent-length-message-detail" />
+                        <input type="hidden" value="" id="current-length-load-more-message-detail" />
+                        @if ($listConversations->count())
+                        @foreach ($listConversations as $item)
+                        <button class="button-select-user-id flex flex-row items-center hover:bg-gray-100 rounded-xl p-2" data-conversation-id="{{ $item['id'] }}">
                             <div class="flex items-center justify-center h-8 w-8 bg-gray-200 rounded-full">
-                                M
+                                {{ strtoupper($item['name'][0]) }}
                             </div>
-                            <div class="ml-2 text-sm font-semibold">Marta Curtis</div>
-                            <div class="flex items-center justify-center ml-auto text-xs text-white bg-red-500 h-4 w-4 rounded leading-none">
-                                2
+                            <div class="ml-2 text-sm font-semibold">{{ Auth::id() == $item['id'] ? 'My account' : $item['name'] }}</div>
+                            <div class="flex items-center justify-center ml-auto text-xs text-white bg-red-500 h-4 w-4 rounded leading-none <?php echo "count-message-unread" . $item['id']; ?>">
+                                {{ $item['count_unread'] }}
                             </div>
                         </button>
-                        <button class="flex flex-row items-center hover:bg-gray-100 rounded-xl p-2">
-                            <div class="flex items-center justify-center h-8 w-8 bg-orange-200 rounded-full">
-                                P
-                            </div>
-                            <div class="ml-2 text-sm font-semibold">Philip Tucker</div>
-                        </button>
-                        <button class="flex flex-row items-center hover:bg-gray-100 rounded-xl p-2">
-                            <div class="flex items-center justify-center h-8 w-8 bg-pink-200 rounded-full">
-                                C
-                            </div>
-                            <div class="ml-2 text-sm font-semibold">Christine Reid</div>
-                        </button>
-                        <button class="flex flex-row items-center hover:bg-gray-100 rounded-xl p-2">
-                            <div class="flex items-center justify-center h-8 w-8 bg-purple-200 rounded-full">
-                                J
-                            </div>
-                            <div class="ml-2 text-sm font-semibold">Jerry Guzman</div>
-                        </button>
-                    </div>
-                    <div class="flex flex-row items-center justify-between text-xs mt-6">
-                        <span class="font-bold">Archivied</span>
-                        <span class="flex items-center justify-center bg-gray-300 h-4 w-4 rounded-full">7</span>
-                    </div>
-                    <div class="flex flex-col space-y-1 mt-4 -mx-2">
-                        <button class="flex flex-row items-center hover:bg-gray-100 rounded-xl p-2">
-                            <div class="flex items-center justify-center h-8 w-8 bg-indigo-200 rounded-full">
-                                H
-                            </div>
-                            <div class="ml-2 text-sm font-semibold">Henry Boyd</div>
-                        </button>
+                        @endforeach
+                        @endif
                     </div>
                 </div>
             </div>
             <div class="flex flex-col flex-auto h-full p-6">
                 <div class="flex flex-col flex-auto flex-shrink-0 rounded-2xl bg-gray-100 h-full p-4">
-                    <div class="flex flex-col h-full overflow-x-auto mb-4">
-                        <div class="flex flex-col h-full">
-                            <div class="grid grid-cols-12 gap-y-2">
+                    <div class="flex flex-col h-full overflow-x-auto mb-4 detail-scroll-message">
+                        <div class="flex flex-col h-full" id="list-content-message">
+                            <div class="grid grid-cols-12 gap-y-2" id="content-message-detail">
                                 <!-- list message -->
-                                <div class="col-start-1 col-end-8 p-3 rounded-lg">
-                                    <div class="flex flex-row items-center">
-                                        <div class="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
-                                            A
-                                        </div>
-                                        <div class="relative ml-3 text-sm bg-white py-2 px-4 shadow rounded-xl">
-                                            <div>Hey How are you today?</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-start-1 col-end-8 p-3 rounded-lg">
-                                    <div class="flex flex-row items-center">
-                                        <div class="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
-                                            A
-                                        </div>
-                                        <div class="relative ml-3 text-sm bg-white py-2 px-4 shadow rounded-xl">
-                                            <div>
-                                                Lorem ipsum dolor sit amet, consectetur adipisicing
-                                                elit. Vel ipsa commodi illum saepe numquam maxime
-                                                asperiores voluptate sit, minima perspiciatis.
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-start-6 col-end-13 p-3 rounded-lg">
-                                    <div class="flex items-center justify-start flex-row-reverse">
-                                        <div class="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
-                                            A
-                                        </div>
-                                        <div class="relative mr-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl">
-                                            <div>I'm ok what about you?</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-start-6 col-end-13 p-3 rounded-lg">
-                                    <div class="flex items-center justify-start flex-row-reverse">
-                                        <div class="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
-                                            A
-                                        </div>
-                                        <div class="relative mr-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl">
-                                            <div>
-                                                Lorem ipsum dolor sit, amet consectetur adipisicing. ?
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-start-1 col-end-8 p-3 rounded-lg">
-                                    <div class="flex flex-row items-center">
-                                        <div class="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
-                                            A
-                                        </div>
-                                        <div class="relative ml-3 text-sm bg-white py-2 px-4 shadow rounded-xl">
-                                            <div>Lorem ipsum dolor sit amet !</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-start-6 col-end-13 p-3 rounded-lg">
-                                    <div class="flex items-center justify-start flex-row-reverse">
-                                        <div class="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
-                                            A
-                                        </div>
-                                        <div class="relative mr-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl">
-                                            <div>
-                                                Lorem ipsum dolor sit, amet consectetur adipisicing. ?
-                                            </div>
-                                            <div class="absolute text-xs bottom-0 right-0 -mb-5 mr-2 text-gray-500">
-                                                Seen
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-start-1 col-end-8 p-3 rounded-lg">
-                                    <div class="flex flex-row items-center">
-                                        <div class="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
-                                            A
-                                        </div>
-                                        <div class="relative ml-3 text-sm bg-white py-2 px-4 shadow rounded-xl">
-                                            <div>
-                                                Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                                                Perspiciatis, in.
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-start-1 col-end-8 p-3 rounded-lg">
-                                    <div class="flex flex-row items-center">
-                                        <div class="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
-                                            A
-                                        </div>
-                                        <div class="relative ml-3 text-sm bg-white py-2 px-4 shadow rounded-xl">
-                                            <div class="flex flex-row items-center">
-                                                <button class="flex items-center justify-center bg-indigo-600 hover:bg-indigo-800 rounded-full h-8 w-10">
-                                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                                    </svg>
-                                                </button>
-                                                <div class="flex flex-row items-center space-x-px ml-4">
-                                                    <div class="h-2 w-1 bg-gray-500 rounded-lg"></div>
-                                                    <div class="h-2 w-1 bg-gray-500 rounded-lg"></div>
-                                                    <div class="h-4 w-1 bg-gray-500 rounded-lg"></div>
-                                                    <div class="h-8 w-1 bg-gray-500 rounded-lg"></div>
-                                                    <div class="h-8 w-1 bg-gray-500 rounded-lg"></div>
-                                                    <div class="h-10 w-1 bg-gray-500 rounded-lg"></div>
-                                                    <div class="h-10 w-1 bg-gray-500 rounded-lg"></div>
-                                                    <div class="h-12 w-1 bg-gray-500 rounded-lg"></div>
-                                                    <div class="h-10 w-1 bg-gray-500 rounded-lg"></div>
-                                                    <div class="h-6 w-1 bg-gray-500 rounded-lg"></div>
-                                                    <div class="h-5 w-1 bg-gray-500 rounded-lg"></div>
-                                                    <div class="h-4 w-1 bg-gray-500 rounded-lg"></div>
-                                                    <div class="h-3 w-1 bg-gray-500 rounded-lg"></div>
-                                                    <div class="h-2 w-1 bg-gray-500 rounded-lg"></div>
-                                                    <div class="h-2 w-1 bg-gray-500 rounded-lg"></div>
-                                                    <div class="h-2 w-1 bg-gray-500 rounded-lg"></div>
-                                                    <div class="h-10 w-1 bg-gray-500 rounded-lg"></div>
-                                                    <div class="h-2 w-1 bg-gray-500 rounded-lg"></div>
-                                                    <div class="h-10 w-1 bg-gray-500 rounded-lg"></div>
-                                                    <div class="h-8 w-1 bg-gray-500 rounded-lg"></div>
-                                                    <div class="h-8 w-1 bg-gray-500 rounded-lg"></div>
-                                                    <div class="h-1 w-1 bg-gray-500 rounded-lg"></div>
-                                                    <div class="h-1 w-1 bg-gray-500 rounded-lg"></div>
-                                                    <div class="h-2 w-1 bg-gray-500 rounded-lg"></div>
-                                                    <div class="h-8 w-1 bg-gray-500 rounded-lg"></div>
-                                                    <div class="h-8 w-1 bg-gray-500 rounded-lg"></div>
-                                                    <div class="h-2 w-1 bg-gray-500 rounded-lg"></div>
-                                                    <div class="h-2 w-1 bg-gray-500 rounded-lg"></div>
-                                                    <div class="h-2 w-1 bg-gray-500 rounded-lg"></div>
-                                                    <div class="h-2 w-1 bg-gray-500 rounded-lg"></div>
-                                                    <div class="h-4 w-1 bg-gray-500 rounded-lg"></div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
                                 <!-- end list message -->
                             </div>
                         </div>
@@ -285,46 +148,309 @@
             </div>
         </div>
     </div>
-    @vite('resources/js/bootstrap.js');
+    @vite('resources/js/bootstrap.js')
+    @vite('resources/js/toast.js')
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-toast-plugin/1.3.2/jquery.toast.min.js"></script>
     <script>
         $(document).ready(function() {
+            let page = 1;
+            $('.loading').css('display', 'none');
             $('.input-message').on('change', function() {
                 if (this.value) {
                     $('.send-message').addClass('display-button');
                 } else {
                     $('.send-message').removeClass('display-button');
+                    $.toast({
+                        heading: 'Error',
+                        text: 'Message reply is empty!',
+                        showHideTransition: 'fade',
+                        icon: 'error'
+                    })
+                }
+            });
+
+            $('.button-select-user-id').click(function() {
+                page = 1;
+                $('.button-select-user-id').removeClass('add-selected-user');
+                $(this).addClass('add-selected-user');
+                $('#current-send-user-id').val($(this).attr('data-conversation-id'));
+                $('#curent-length-message-detail').val(0);
+                readMessageSingleCurrentUser($(this).attr('data-conversation-id'));
+                getMessageSingle($(this).attr('data-id'), page, true);
+                $('.content-message-popup-parent[data-id="' + $(this).attr('data-conversation-id') + '"]').remove();
+            });
+
+            $('.input-message').click(function() {
+                readMessageSingleCurrentUser($('#current-send-user-id').val());
+            });
+
+            $('.detail-scroll-message').scroll(function() {
+                if ($(this).scrollTop() == 0 && parseInt($('#current-length-load-more-message-detail').val())) {
+                    page = page + 1;
+                    getMessageSingle($('#current-send-user-id').val(), page, false);
+                    scrollToTopScreen();
+                }
+
+                if (Math.round($(this).scrollTop() + $(this).innerHeight(), 10) >= Math.round($(this)[0].scrollHeight, 10)) {
+                    scrollToEndScreen();
                 }
             });
 
             $('.send-message').click(function() {
                 var message = $('.input-message').val();
                 if (!message) {
-                    alert("Message is Empty!");
+                    $.toast({
+                        heading: 'Error',
+                        text: 'Message reply is empty!',
+                        showHideTransition: 'fade',
+                        icon: 'error'
+                    })
                 } else {
-                    let sendMessageUrl = window.location.protocol + '//' + window.location.host + '/admin/chats/send-message-to-user'
-                    $.ajax({
-                        url: sendMessageUrl,
-                        type: "post",
-                        data: {
-                            "_token": "{{ csrf_token() }}",
-                            "message": message,
-                            "to_user_id": 2
-                        },
-                        success: function(data) {
-
-                        },
-                        error: function() {
-                            alert('Đã xảy ra lỗi!');
-                        }
-                    });
-
+                    let htmlContent = getSendNewMessageContent(message);
+                    restartContentDivMessageDetailFirstSendMessage();
+                    $("#content-message-detail").append(htmlContent);
+                    $('.input-message').val('');
+                    scrollToEndMessageDetail();
+                    let sendMessageUrl = window.location.protocol + '//' + window.location.host + '/chat/send-message'
+                    sendMessageByAjax($('#current-send-user-id').val(), sendMessageUrl, message);
                 }
             });
         });
+
+        function getMessageSingle(conversationId, page, scrollToEndScreenMode) {
+            $('#current-send-user-id').val(conversationId);
+            let getDetailMessageSingle = window.location.protocol + '//' + window.location.host + "/chat/get-message-of-conversation/" + conversationId
+            $('.loading').css('display', 'block');
+            $.ajax({
+                url: getDetailMessageSingle,
+                type: 'get',
+                data: {
+                    "_token": "{{ csrf_token() }}",
+                    "page": page
+                },
+                success: function(data) {
+                    $('#current-length-load-more-message-detail').val(data.data.length);
+                    if (!data.data.length) {
+                        if (scrollToEndScreenMode) {
+                            $('#content-message-detail').remove();
+                            $('#list-content-message').append('<div class="grid no-message-text grid-cols-12 gap-y-2" id="content-message-detail"><h3 class="no-message">There are no messages yet!</h3></div>')
+                            $('html, body').animate({
+                                scrollTop: 0
+                            }, 1000);
+                        }
+                    } else {
+                        if (scrollToEndScreenMode) {
+                            $('#content-message-detail').remove();
+                            $('#list-content-message').append('<div class="grid grid-cols-12 gap-y-2" id="content-message-detail"></div>');
+                            let htmlContent = getMessageFromDataMessage(data);
+
+                            $("#content-message-detail").append(htmlContent);
+
+                            scrollToEndScreen();
+                            scrollToEndMessageDetail();
+                        } else {
+                            scrollToEndMessageDetail(true);
+                            let oldContentHtmlMessageSingle = $("#content-message-detail").html();
+                            let htmlContentLoadMore = getMessageFromDataMessage(data);
+
+                            htmlContentLoadMore = htmlContentLoadMore + oldContentHtmlMessageSingle;
+                            $('#content-message-detail').remove();
+                            $('#list-content-message').append('<div class="grid grid-cols-12 gap-y-2" id="content-message-detail"></div>');
+                            $("#content-message-detail").append(htmlContentLoadMore);
+                        }
+
+                    }
+                    $('.loading').css('display', 'none');
+                },
+                error: function() {
+                    $('.loading').css('display', 'none');
+                    alert('Đã xảy ra lỗi');
+                }
+            });
+        }
+
+        function getMessageFromDataMessage(dataMessage) {
+            let htmlContent = "";
+            for (let i = 0; i < dataMessage.data.length; i++) {
+                $('#curent-length-message-detail').val(parseInt($('#curent-length-message-detail').val()) + 1);
+                let authId = "{{ Auth::id() }}";
+                if (authId != dataMessage.data[i].sender_id) {
+                    htmlContent = htmlContent +
+                        '<div class="col-start-1 col-end-8 p-3 rounded-lg">' +
+                        '<div class = "flex flex-row items-center">' +
+                        '<div class = "flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0" >' + dataMessage.data[i].user_send.name[0] +
+                        '</div><div class = "relative ml-3 text-sm bg-white py-2 px-4 shadow rounded-xl">' +
+                        '<div>' + dataMessage.data[i].content + '</div></div><span class="ml-2 mr-2">' + moment(dataMessage.data[i].created_at, 'YYYY-MM-DD HH:mm:ss').format('DD/MM/YYYY HH:mm') + '</span></div></div>'
+                } else {
+                    htmlContent = htmlContent +
+                        '<div class="col-start-6 col-end-13 p-3 rounded-lg">' +
+                        '<div class = "flex items-center justify-start flex-row-reverse">' +
+                        '<div class = "flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0" >' + dataMessage.data[i].user_send.name[0] +
+                        '</div>' +
+                        '<div class = "relative mr-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl">' +
+                        '<div>' + dataMessage.data[i].content + '</div></div><span class="ml-2 mr-2">' + moment(dataMessage.data[i].created_at, 'YYYY-MM-DD HH:mm:ss').format('DD/MM/YYYY HH:mm') + '</span></div></div>'
+                }
+            }
+
+            return htmlContent;
+        }
+
+        function scrollToEndScreen() {
+            $('html, body').animate({
+                scrollTop: $(document).height()
+            }, 1000);
+        }
+
+        function scrollToTopScreen() {
+            $('html, body').animate({
+                scrollTop: 0
+            }, 1000);
+        }
+
+        function scrollToEndMessageDetail(scrollAfterLoadMore = false) {
+            const offset = 20;
+            $(".detail-scroll-message").animate({
+                scrollTop: !scrollAfterLoadMore ? $('.detail-scroll-message').prop("scrollHeight") : offset
+            }, 1000);
+        }
+
+        function restartContentDivMessageDetailFirstSendMessage() {
+            const lengthOldMessageDetails = $('#curent-length-message-detail').val();
+            if (!parseInt(lengthOldMessageDetails) || !lengthOldMessageDetails) {
+                $('#content-message-detail').remove();
+                $('#list-content-message').append('<div class="grid grid-cols-12 gap-y-2" id="content-message-detail"></div>');
+            }
+        }
+
+        function getNewLengthDetailMessage() {
+            let lengthNewMessageDetails = parseInt($('#curent-length-message-detail').val()) + 1;
+            $('#curent-length-message-detail').val(lengthNewMessageDetails);
+        }
+
+        function reviceNewMessageContent(message) {
+            var htmlContent = "";
+            htmlContent = htmlContent +
+                '<div class="col-start-1 col-end-8 p-3 rounded-lg">' +
+                '<div class = "flex flex-row items-center">' +
+                '<div class = "flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0" >A' +
+                '</div> <div class = "relative ml-3 text-sm bg-white py-2 px-4 shadow rounded-xl">' +
+                '<div>' + message + '</div></div> <span class="ml-2 mr-2">' + moment().format('DD/MM/YYYY HH:mm') + '</span></div></div>';
+
+            return htmlContent;
+        }
+
+        function getSendNewMessageContent(message) {
+            let htmlContent = "";
+            htmlContent = htmlContent +
+                '<div class="col-start-6 col-end-13 p-3 rounded-lg">' +
+                '<div class = "flex items-center justify-start flex-row-reverse">' +
+                '<div class = "flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0" >A </div>' +
+                '<div class = "relative mr-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl">' +
+                '<div>' + message + '</div></div><span class="ml-2 mr-2">' + moment().format('DD/MM/YYYY HH:mm') + '</span></div></div>';
+
+            return htmlContent;
+        }
+
+        function getActiveBackgroundSelectedLatestMessage(latestToConversationId) {
+            $('.button-select-user-id').each(function() {
+                let dataId = $(this).data('id');
+                if (dataId == latestToConversationId) {
+                    $(this).addClass('add-selected-user');
+                }
+            });
+        }
+
+        function readMessageSingleCurrentUser(currentSendUserId) {
+            let classNameCountUnreadUser = '.count-message-unread' + currentSendUserId;
+            $(classNameCountUnreadUser).text(0);
+        }
+
+        function getNewCountUnReadMessageUserSingle(currentConversationId) {
+            let classNameCountUnreadUser = '.count-message-unread' + currentConversationId;
+            let newCountUnReadMessageUserSingle = parseInt($(classNameCountUnreadUser).text()) + 1;
+            $(classNameCountUnreadUser).text(newCountUnReadMessageUserSingle);
+        }
+
+        function addPopupNewMessageReviceSingle(userSendMessage, message) {
+            let messageSlice = message.length > 50 ? message.slice(0, 50) + '...' : message;
+            let now = moment().format('HH:mm');
+            let htmlContent = '<div class="att-toast toast-entity" id="popup-message-alert1">' +
+                '<div class="bg-gray-200 rounded-lg shadow-lg content-message-popup-parent" data-id=' + userSendMessage.id + '>' +
+                '<div class="flex items-center justify-between px-4 py-2">' +
+                '<div class="flex items-center">' +
+                '<img src="https://banner2.kisspng.com/20180730/kug/kisspng-at-t-u-verse-mobile-phones-directv-internet-globe-flat-icon-5b5ecf850759b5.0794762015329401650301.jpg" alt="logo" class="w-5 h-5 rounded mr-2">' +
+                '<strong class="text-sm font-medium text-gray-900" id="toast-author">' + userSendMessage.name + '</strong>' +
+                '<small class="text-xs text-gray-500" id="toast-created">' + now + '</small>' +
+                '</div>' +
+                '<div class="flex items-center">' +
+                '<button type="button" class="ml-2 mb-1 mr-2 text-sm font-medium text-gray-600 hover:text-gray-800 focus:outline-none focus:text-gray-800 toast-maximize hidden"><span aria-hidden="true">+</span></button>' +
+                '<button type="button" class="ml-2 mb-1 mr-2 text-sm font-medium text-gray-600 hover:text-gray-800 focus:outline-none focus:text-gray-800 toast-minimize"><span aria-hidden="true">-</span></button>' +
+                '<button type="button" class="ml-2 mb-1 mr-2 text-sm font-medium text-gray-600 hover:text-gray-800 focus:outline-none focus:text-gray-800 redirect-detail-message"><span aria-hidden="true">^</span></button>' +
+                '<button type="button" class="ml-2 mb-1 text-sm font-medium text-gray-600 hover:text-gray-800 focus:outline-none focus:text-gray-800 toast-close"><span aria-hidden="true">&times;</span></button>' +
+                '</div>' +
+                '</div>' +
+                '<div class="px-4 py-2 content-popup-message">' +
+                '<div class="pl-3 pr-3 pb-2 text-sm text-gray-600" id="toast-secondary">' + messageSlice + '</div>' +
+                '<div class="flex items-center justify-between pl-2 pr-2 pb-2 mb-2">' +
+                '<input type="text" class="form-input w-full rounded-md border-gray-300 shadow-sm sm:text-sm sm:leading-5" id="toast-feedback" placeholder="Send Feedback">' +
+                '<div class="ml-2" data-id=' + userSendMessage.id + '>' +
+                '<button class="px-3 py-2 text-sm font-medium leading-5 text-white transition duration-150 ease-in-out bg-gray-800 border border-transparent rounded-md hover:bg-gray-700 focus:outline-none focus:border-gray-900 focus:shadow-outline-gray active:bg-gray-900 reply-message-on-toast" type="button">&crarr;</button>' +
+                '</div>' +
+                '</div>' +
+                '</div>' +
+                '</div>' +
+                '</div>';
+
+            $('.list-toast-send-message').append(htmlContent);
+        }
+
+        function sendMessageByAjax(sendToConversationId, sendMessageUrl, message, sendMessageByToast = false) {
+            $.ajax({
+                url: sendMessageUrl,
+                type: "post",
+                data: {
+                    "_token": "{{ csrf_token() }}",
+                    "message": message,
+                    "conversation_id": sendToConversationId
+                },
+                success: function(data) {
+                    if (!sendMessageByToast) {
+                        getNewLengthDetailMessage();
+                    } else {
+                        $.toast({
+                            heading: 'Success',
+                            text: 'Reply message has been sent!',
+                            showHideTransition: 'slide',
+                            icon: 'success'
+                        })
+                        $('.content-message-popup-parent[data-id="' + sendToConversationId + '"]').remove();
+                    }
+                },
+                error: function() {
+                    alert('Đã xảy ra lỗi!Message chưa đc gửi!');
+                }
+            });
+        }
+
         window.onload = function() {
-            Echo.private(`chat-single`)
+            const authId = "{{Auth::id()}}"
+            const latestToConversationId = "{{$listConversations->first()['id']}}";
+            getActiveBackgroundSelectedLatestMessage(latestToConversationId);
+            getMessageSingle(latestToConversationId, 1, true);
+            Echo.private('chat-single.' + authId)
                 .listen('SendMessageEvent', (e) => {
-                    alert("có ng gửi tin nhắn!");
+                    getNewCountUnReadMessageUserSingle(e.conversationId);
+                    if (e.conversationId == $('#current-send-user-id').val()) {
+                        restartContentDivMessageDetailFirstSendMessage();
+                        getNewLengthDetailMessage();
+                        let htmlContent = reviceNewMessageContent(e.message);
+                        $("#content-message-detail").append(htmlContent);
+                        scrollToEndMessageDetail();
+                        scrollToEndScreen();
+                    } else {
+                        addPopupNewMessageReviceSingle(e.user, e.message);
+                    }
                 });
         }
     </script>

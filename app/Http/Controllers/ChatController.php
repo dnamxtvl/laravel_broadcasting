@@ -2,72 +2,57 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\Chat;
-use App\Models\GroupChat;
-use Illuminate\Support\Facades\Auth;
-use App\Models\User;
+use App\Enums\Conversation\TypeEnum;
 use App\Events\SendMessageEvent;
-use Illuminate\Http\Exceptions\HttpResponseException;
+use App\Services\Interface\ChatServiceInterface;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Throwable;
 
 class ChatController extends Controller
 {
-    public function __construct(Chat $chat, GroupChat $groupChat, User $user)
+    public function __construct(
+        private readonly ChatServiceInterface $chatService
+    ) {}
+
+    public function listConversation(Request $request): View
     {
-        $this->chat = $chat;
-        $this->groupChat = $groupChat;
-        $this->user = $user;
+        $listConversations = $this->chatService->getListConversations(
+            userId: Auth::id(),
+            page: $request->input('page', config('app.default_page'))
+        );
+
+        return view('chat.index', compact('listConversations'));
     }
 
-    public function index(Request $request)
-    {
-        $listUser = $this->user->all();
-        return view('chat.index');
-    }
-
-    public function addGroupCChat(Request $request)
-    {
-        dd($request->all());
-    }
-
-    public function sendUserMessage(Request $request)
+    public function sendMessage(Request $request): JsonResponse
     {
         try {
-            // SendMessageEvent::dispatch(Auth::user(), $request->to_user_id, $request->message);
-            broadcast(new SendMessageEvent(Auth::user(), $request->to_user_id, $request->message))->toOthers();
-            return response()->json([
-                'status' => 200,
-                'message' => 'success'
-            ], 200);
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => 500,
-                'message' => $e->getMessage()
-            ], 500);
+            $this->chatService->sendMessage(
+                conversationOrUserId: $request->input('conversation_id'),
+                message: $request->input('message'),
+                type: TypeEnum::tryFrom($request->input('type'))
+            );
+
+            return $this->respondWithJson(content: []);
+        } catch (Throwable $throwable) {
+            return $this->respondWithJsonError(e: $throwable);
         }
     }
 
-    public function listDetailMessageSingle($toUserId)
+    public function getMessageOfConversation(string $conversationId, Request $request): JsonResponse
     {
-        $listMessage = $this->chat->whereNull('group_id')
-            ->with([
-                'userSendMessage:id,name,avatar',
-                'userReceiveMessage:id,name,avatar'
-            ])
-            ->where(function ($query) use ($toUserId) {
-                $query->where('send_user_id', Auth::id())
-                ->where('to_user_id', $toUserId);
-            })->orWhere(function ($query1) use ($toUserId) {
-                $query1->where('to_user_id', Auth::id())
-                ->where('send_user_id', $toUserId);
-            })
-            ->orderBy('created_at')
-            ->get();
+        try {
+            $listMessage = $this->chatService->getMessageOfConversation(
+                conversationId: $conversationId,
+                page: $request->input('page', config('app.default_page'))
+            );
 
-        return response()->json([
-            'status' => 200,
-            'message' => 'success',
-            'data' => $listMessage
-        ], 200);
+            return $this->respondWithJson(content: $listMessage->toArray());
+        } catch (Throwable $throwable) {
+            return $this->respondWithJsonError(e: $throwable);
+        }
     }
 }

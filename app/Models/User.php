@@ -4,28 +4,19 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
+/**
+ * @property mixed $id
+ */
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, HasRoles;
-
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
-        'avatar',
-        'google_id'
-    ];
-
+    use HasApiTokens, HasFactory, Notifiable, HasRoles, HasUuids;
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -52,6 +43,16 @@ class User extends Authenticatable
 
     public function receiveChat()
     {
-        return $this->hasMany(Chat::class, 'id', 'to_user_id');
+        return $this->hasMany(Chat::class, 'to_user_id', 'id');
+    }
+
+    public function conversations()
+    {
+        return $this->belongsToMany(Conversation::class, 'user_conversations', 'user_id', 'conversation_id');
+    }
+
+    public function userConversations(): HasMany
+    {
+        return $this->hasMany(UserConversation::class);
     }
 }
