@@ -39,9 +39,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-//        DB::whenQueryingForLongerThan(config('app.max_query_timeout'), function (Connection $connection,  QueryExecuted $event) {
-//            Log::error(message: $event->sql . ' timeout ' . $event->time . ' in database ' . $event->connectionName);
-//            throw new TimeoutException('Database mất quá nhiều thời gian phản hồi.');
-//        });
+        DB::whenQueryingForLongerThan(config('app.max_query_timeout'), function (Connection $connection,  QueryExecuted $event) {
+            Log::error(message: $event->sql . ' timeout ' . $event->time . ' in database ' . $event->connectionName);
+            throw new TimeoutException('Database mất quá nhiều thời gian phản hồi.');
+        });
     }
 }

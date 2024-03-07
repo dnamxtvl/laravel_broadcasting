@@ -8,6 +8,7 @@ use App\Pipeline\Global\ConversationIdFilter;
 use App\Pipeline\Global\UserIdFilter;
 use App\Repository\Interface\MessageRepositoryInterface;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pipeline\Pipeline;
 
 class MessageRepository implements MessageRepositoryInterface
@@ -39,7 +40,7 @@ class MessageRepository implements MessageRepositoryInterface
             ->with(['userSend:id,name,avatar_url', 'messageFeelings.user:id,name,avatar_url']);
     }
 
-    public function save(SaveMessageDTO $saveMessageDTO): void
+    public function save(SaveMessageDTO $saveMessageDTO): Model
     {
         $message = new Message();
 
@@ -49,5 +50,7 @@ class MessageRepository implements MessageRepositoryInterface
         $message->conversation_id = $saveMessageDTO->getConversationId();
         $message->parent_id = $saveMessageDTO->getParentId();
         $message->save();
+
+        return $message;
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Repository\Implement;
 
+use App\DTOs\SaveConversationDTO;
 use App\Models\Conversation;
 use App\Pipeline\Global\UserIdFilter;
 use App\Repository\Interface\ConversationRepositoryInterface;
@@ -36,7 +37,7 @@ class ConversationRepository implements ConversationRepositoryInterface
             ->whereHas('users', function ($query) use ($userId) {
                 $query->where('users.id', $userId);
             })
-            ->with('users:id,name,avatar_url')
+            ->with(['users:id,name,avatar_url', 'createdByUser:id,name,avatar_url'])
             ->with('userConversations', function ($query) use ($userId) {
                 $query->where('user_id', $userId);
             })
@@ -48,5 +49,19 @@ class ConversationRepository implements ConversationRepositoryInterface
     public function findById(string $conversationId): ?Model
     {
         return $this->conversation->query()->with('users')->find(id: $conversationId);
+    }
+
+    public function save(SaveConversationDTO $saveConversationDTO): Model
+    {
+        $conversation = new Conversation();
+
+        $conversation->name = $saveConversationDTO->getName();
+        $conversation->type = $saveConversationDTO->getType()->value;
+        $conversation->created_by = $saveConversationDTO->getCreatedBy();
+        $conversation->latest_message_id = $saveConversationDTO->getLatestMessageId();
+        $conversation->latest_online_at = $saveConversationDTO->getLatestOnlineAt();
+        $conversation->save();
+
+        return $conversation;
     }
 }

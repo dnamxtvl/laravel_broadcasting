@@ -22,6 +22,7 @@ class SendMessageEvent implements ShouldBroadcast
      * @return void
      */
     public function __construct(
+        public readonly User $sender,
         public readonly User $user,
         public readonly string $conversationId,
         public readonly bool $isFirstMessage,

@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 /**
  * @property mixed $id
+ * @property mixed $name
  */
 class User extends Authenticatable
 {

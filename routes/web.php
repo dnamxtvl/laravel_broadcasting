@@ -33,5 +33,6 @@ Route::group([
         Route::get('/list-conversation', [ChatController::class, 'listConversation'])->name('chats.listConversation');
         Route::post('/send-message', [ChatController::class, 'sendMessage'])->name('chats.sendMessage');
         Route::get('/get-message-of-conversation/{conversationId}', [ChatController::class, 'getMessageOfConversation'])->name('chats.getMessageOfConversation');
+        Route::post('/create-conversation', [ChatController::class, 'createNewConversation'])->name('chats.createNewConversation');
     });
 });

@@ -16,6 +16,7 @@ class SaveMessageEvent
      */
     public function __construct(
         public readonly string $conversationId,
-        public readonly string $message
+        public readonly string $message,
+        public readonly string $senderId
     ) {}
 }
