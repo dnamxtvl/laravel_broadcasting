@@ -1,51 +1,60 @@
-version: "3"
+version: '2.2'
 services:
-    redis:
-      image: redis:alpine
-      container_name: laravel-9-broadcasting
-      ports:
-        - "6380:6379"
+    nginx:
+        build:
+            context: .
+            dockerfile: docker/Dockerfile.nginx
+            args:
+                PHP_FPM_SERVER: php
+                PHP_FPM_PORT: 9000
+        ports:
+            - ${DOCKER_NGINX_EXTERNAL_PORT-8000}:80
+        depends_on:
+            - php
+        volumes:
+            - .:/var/www/
+        networks:
+            - backend
 
     php:
-      build:
-        context: ./
-        dockerfile: app.dockerfile
-      image: php:8.1-fpm
-      container_name: php-8-laravel-9-broadcasting
-      volumes:
-       - ./:/var/www/html
+        build:
+            context: .
+            dockerfile: docker/Dockerfile
+            args:
+                XDEBUG: "true"
+        volumes:
+            - .:/var/www/
+            - ./docker/php.ini:/usr/local/etc/php/conf.d/php.ini
+        environment:
+            APP_ENV: local
+        networks:
+            - backend
 
-    webserver:
-      image: nginx:1.17.10
-      container_name: nginx-webserver-laravel-9-broadcasting
-      links:
-        - php:fpm
-      environment:
-        - FPM_HOST=fpm
-        - FPM_PORT=9000
-      volumes:
-        - ./:/var/www/html
-        - ./docker/nginx_conf:/etc/nginx/conf.d/
-      ports:
-       - "8080:80"
+    redis:
+        image: redis:5.0.6
+        ports:
+            - ${DOCKER_REDIS_EXTERNAL_PORT-6379}:6379
+        networks:
+            - backend
 
-    db:
-      platform: linux/x86_64
-      image: mysql:5.7
-      container_name: mysql-db-laravel-9-broadcasting
-      environment:
-        MYSQL_ROOT_PASSWORD: root
-        MYSQL_DATABASE: sampleDB
-        MYSQL_USER: namdv
-        MYSQL_PASSWORD: namdv123
-      ports:
-        - 3308:3306
-    # phpmyadmin
-    phpmyadmin:
-      image: phpmyadmin/phpmyadmin
-      container_name: phpmyadmin-laravel-9-broadcasting
-      restart: always
-      ports:
-        - '8081:80'
-      environment:
-        PMA_HOST: db   
+    mysql:
+        image: mysql:8.0
+        volumes:
+            - mysqldb:/var/lib/mysql
+        environment:
+            MYSQL_DATABASE: laravel_broadcasting
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_ALLOW_EMPTY_PASSWORD: "true"
+        ports:
+            - "3309:3306"
+        command: [ 'mysqld', '--character-set-server=utf8mb4', '--collation-server=utf8mb4_unicode_ci' ]
+        networks:
+            - backend
+
+volumes:
+    mysqldb:
+        driver: local
+
+networks:
+    backend:
+        driver: "bridge"

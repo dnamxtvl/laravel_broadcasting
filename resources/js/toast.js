@@ -16,18 +16,15 @@ $(document).ready(function () {
   });
 
   $(document).on('click', '.redirect-detail-message', function (e) {
-    let conversationId = $(this).parent().parent().parent().attr('data-id');
-    let senderId = $(this).parent().parent().parent().attr('data-sender-id');
-    console.log(conversationId);
-    $('.button-select-user-id[data-id="' + conversationId + '"]').trigger('click');
-    $('.content-message-popup-parent[data-id="' + conversationId + '"]').remove();
-    $('.button-select-user-id[data-id="' + senderId + '"]').trigger('click');
-    $('.content-message-popup-parent[data-id="' + senderId + '"]').remove();
+    var userSendId = $(this).parent().parent().parent().attr('data-id');
+    console.log(userSendId);
+    $('.button-select-user-id[data-id="' + userSendId + '"]').trigger('click');
+    $('.content-message-popup-parent[data-id="' + userSendId + '"]').remove();
   });
 
   $(document).on('click', '.reply-message-on-toast', function (e) {
-    let userSendId = $(this).parent().attr('data-id');
-    let messageContent = $(this).parent().prev().val();
+    var userSendId = $(this).parent().attr('data-id');
+    var messageContent = $(this).parent().prev().val();
     if (!messageContent) {
       $.toast({
         heading: 'Error',
@@ -36,9 +33,8 @@ $(document).ready(function () {
         icon: 'error'
       })
     } else {
-      let sendMessageUrl = window.location.protocol + '//' + window.location.host + '/chat/send-message'
+      var sendMessageUrl = window.location.protocol + '//' + window.location.host + '/chats/send-message-to-user'
       sendMessageByAjax(userSendId, sendMessageUrl, messageContent, true);
     }
   });
 });
-
