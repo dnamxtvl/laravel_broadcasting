@@ -291,6 +291,8 @@
         $('#emojiButton').click(function () {
             showEmoji = !showEmoji;
             openCloseEmoji();
+            let currentType = $('.button-select-user-id[data-id="' + $('#current-send-user-id').val() + '"]').attr('data-type');
+            $('#current-type-conversation').val(currentType);
         });
 
         let imgUpload = document.getElementById('upload-img')
@@ -388,6 +390,8 @@
                 showEmoji = false;
                 openCloseEmoji();
                 readMessageSingleCurrentUser($('#current-send-user-id').val());
+                let currentType = $('.button-select-user-id[data-id="' + $('#current-send-user-id').val() + '"]').attr('data-type');
+                $('#current-type-conversation').val(currentType);
             });
 
             $('.detail-scroll-message').scroll(function() {
