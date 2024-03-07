@@ -1,4 +1,4 @@
-FROM php:8.1-fpm
+FROM php:8.2-fpm
 
 # Install dependencies
 RUN apt-get update && apt-get install -y \
@@ -30,22 +30,9 @@ RUN apt-get update \
         git \
         zlib1g-dev \
         unzip \
-        python \
-        && ( \
-            cd /tmp \
-            && mkdir librdkafka \
-            && cd librdkafka \
-            && git clone https://github.com/edenhill/librdkafka.git . \
-            && ./configure \
-            && make \
-            && make install \
-        ) \
-    && rm -r /var/lib/apt/lists/*
+        && rm -r /var/lib/apt/lists/*
 
 # PHP Extensions
-RUN docker-php-ext-install -j$(nproc) zip \
-    && pecl install rdkafka \
-    && docker-php-ext-enable rdkafka
 
 # Clear cache
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
