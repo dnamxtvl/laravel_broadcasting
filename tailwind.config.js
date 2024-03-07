@@ -15,6 +15,10 @@ module.exports = {
             },
         },
     },
-
+    server: {
+        hmr: {
+            host: 'localhost',
+        },
+    },
     plugins: [require('@tailwindcss/forms')],
 };
