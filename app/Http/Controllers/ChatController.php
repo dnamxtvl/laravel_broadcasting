@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Enums\Conversation\TypeEnum;
+use App\Models\User;
 use App\Repository\Interface\UserRepositoryInterface;
 use App\Services\Interface\ChatServiceInterface;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -21,13 +23,10 @@ class ChatController extends Controller
 
     public function listConversation(Request $request): View
     {
-        $listConversations = $this->chatService->getListConversations(
-            userId: Auth::id(),
-            page: $request->input('page', config('app.default_page'))
-        );
+        $listConversations = User::query()->orderByDesc('created_at')->get();
         $listUsers = $this->userRepository->getQuery()->orderByDesc('created_at')->get();
 
-        return view('chat.index', compact('listConversations', 'listUsers'));
+        return view('chat.index', compact( 'listUsers'));
     }
 
     public function sendMessage(Request $request): JsonResponse

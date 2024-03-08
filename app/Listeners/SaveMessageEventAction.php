@@ -5,6 +5,7 @@ namespace App\Listeners;
 use App\DTOs\SaveMessageDTO;
 use App\Events\SaveMessageEvent;
 use App\Models\Conversation;
+use App\Models\Message;
 use App\Repository\Interface\ConversationRepositoryInterface;
 use App\Repository\Interface\MessageRepositoryInterface;
 use Exception;
@@ -39,15 +40,18 @@ class SaveMessageEventAction
                 parentId: null
             );
 
-            $this->messageRepository->save(saveMessageDTO: $saveMessageDTO);
+            $newMessage = $this->messageRepository->save(saveMessageDTO: $saveMessageDTO);
             $conversation = $this->conversationRepository->findById(conversationId: $event->conversationId);
             /*** @var Conversation $conversation **/
             $userConversations = $conversation->userConversations()->where('user_id', '!=', $event->senderId)->get();
-            $conversation->update(['latest_online_at' => now()]);
+            /*** @var Message $newMessage **/
+            $conversation->update(['latest_online_at' => now(), 'latest_message_id' => $newMessage->id]);
 
             foreach ($userConversations as $userConversation) {
-                $userConversation->no_unread_message ++;
-                $userConversation->save();
+                if ($userConversation->id !== $event->senderId) {
+                    $userConversation->no_unread_message ++;
+                    $userConversation->save();
+                }
             }
 
             DB::commit();

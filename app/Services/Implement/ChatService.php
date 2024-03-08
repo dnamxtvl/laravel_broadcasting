@@ -46,6 +46,7 @@ class ChatService implements ChatServiceInterface
                     'latest_message' => $conversation->latestMessage ? [
                         'content' => $conversation->latestMessage->content,
                         'type' => $conversation->latestMessage->type,
+                        'userName' => $conversation->latestMessage->userSend?->name
                     ] : null,
                     'latest_online_at' => $conversation->latest_online_at
                 ];
@@ -190,7 +191,7 @@ class ChatService implements ChatServiceInterface
             throw new HttpException(statusCode: Response::HTTP_FORBIDDEN, message: 'Bạn đã bị xóa khỏi nhóm!');
         }
 
-         event(new SaveMessageEvent(conversationId: $conversation->id, message: $message, senderId: Auth::id()));
+        event(new SaveMessageEvent(conversationId: $conversation->id, message: $message, senderId: Auth::id()));
         foreach ($users as $user) {
             /*** @var User $currentUser **/
             broadcast(new SendMessageEvent(

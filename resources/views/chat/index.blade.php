@@ -168,31 +168,12 @@
                             </div>
                         </div>
                     @endif
-                    <div class="flex flex-col space-y-1 mt-4 -mx-2 overflow-y-auto">
-                        <input type="hidden" value="" id="current-send-user-id" />
-                        <input type="hidden" value="" id="current-type-conversation" />
-                        <input type="hidden" value="0" id="current-length-message-detail" />
-                        <input type="hidden" value="" id="current-length-load-more-message-detail" />
-                        @if ($listConversations->count())
-                        @foreach ($listConversations as $item)
-                        <button class="button-select-user-id flex flex-row items-center hover:bg-gray-100 rounded-xl p-2" data-id="{{ $item['id'] }}"  data-type="{{ $item['type'] }}">
-                            @if (is_null($item['avatar_url']))
-                                <div class="flex items-center justify-center h-8 w-8 bg-gray-200 rounded-full">
-                                    {{ strtoupper($item['name'][0]) }}
-                                </div>
-                            @else
-                                <div class="h-9 w-9 rounded-full border overflow-hidden">
-                                    <input type="image" src="{{ $item['avatar_url'] }}" class="w-9 h-9" />
-                                </div>
-                            @endif
-                            <div class="ml-2 text-sm font-semibold">{{ Auth::id() == $item['id'] ? 'My account' : $item['name'] }}</div>
-                            <div class="flex items-center justify-center ml-auto text-xs text-white bg-red-500 h-4 w-4 rounded leading-none <?php echo "count-message-unread" . $item['id']; ?>">
-                                {{ $item['count_unread'] }}
-                            </div>
-                        </button>
-                        @endforeach
-                        @endif
-                    </div>
+                    <input type="hidden" value="" id="current-send-user-id" />
+                    <input type="hidden" value="" id="current-type-conversation" />
+                    <input type="hidden" value="0" id="current-length-message-detail" />
+                    <input type="hidden" value="" id="current-length-load-more-message-detail" />
+{{--                    @livewire('conversation-list')--}}
+                    <div id="list-conversation"><livewire:conversation-list /></div>
                 </div>
             </div>
             <div class="flex flex-col flex-auto h-full p-6">
@@ -277,6 +258,7 @@
     </div>
     @vite('resources/js/bootstrap.js')
     @vite('resources/js/toast.js')
+    @stack('scripts')
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
@@ -569,15 +551,6 @@
             return htmlContent;
         }
 
-        function getActiveBackgroundSelectedLatestMessage(latestToConversationId) {
-            $('.button-select-user-id').each(function() {
-                let dataId = $(this).data('id');
-                if (dataId == latestToConversationId) {
-                    $(this).addClass('add-selected-user');
-                }
-            });
-        }
-
         function readMessageSingleCurrentUser(currentSendUserId) {
             let classNameCountUnreadUser = '.count-message-unread' + currentSendUserId;
             $(classNameCountUnreadUser).text(0);
@@ -657,21 +630,24 @@
 
         window.onload = function() {
             const authId = "{{Auth::id()}}"
-            const latestToConversationId = "{{$listConversations->first()['id']}}";
-            getActiveBackgroundSelectedLatestMessage(latestToConversationId);
+            const latestToConversationId = $('.button-select-user-id').first().data('id');
             getMessageSingle(latestToConversationId, 1, true);
             Echo.private('chat-single.' + authId)
                 .listen('SendMessageEvent', (e) => {
+                    $('#reload-conversation').trigger("click");
                     getNewCountUnReadMessageUserSingle(e.conversationId, e.sender.id);
                     if (e.sender.id == $('#current-send-user-id').val() || e.conversationId == $('#current-send-user-id').val()) {
                         restartContentDivMessageDetailFirstSendMessage();
                         getNewLengthDetailMessage();
-                        let htmlContent = receiveNewMessageContent(e.message, e.sender.avatar_url, e.sender.name);
+                        let htmlContent = authId != e.sender.id ? receiveNewMessageContent(e.message, e.sender.avatar_url, e.sender.name) :
+                            getSendNewMessageContent(e.message);
                         $("#content-message-detail").append(htmlContent);
                         scrollToEndMessageDetail();
                         scrollToEndScreen();
                     } else {
-                        addPopupNewMessageReceiveSingle(e.sender, e.message, e.conversationId, e.sender.id);
+                        if (authId != e.sender.id) {
+                            addPopupNewMessageReceiveSingle(e.sender, e.message, e.conversationId, e.sender.id);
+                        }
                     }
                 });
         }

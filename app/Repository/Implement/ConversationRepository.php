@@ -41,7 +41,7 @@ class ConversationRepository implements ConversationRepositoryInterface
             ->with('userConversations', function ($query) use ($userId) {
                 $query->where('user_id', $userId);
             })
-            ->with('latestMessage.userSend:id,name', function ($query) {
+            ->with('latestMessage', function ($query) {
                 $query->with('userSend:id,name');
             });
     }

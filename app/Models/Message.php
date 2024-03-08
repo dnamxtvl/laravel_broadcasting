@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
  * @property mixed|string $sender_id
  * @property mixed|string $conversation_id
  * @property mixed|string|null $parent_id
+ * @property mixed $id
  */
 class Message extends Model
 {
