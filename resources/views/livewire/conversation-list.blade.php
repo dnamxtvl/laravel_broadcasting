@@ -1,7 +1,7 @@
 <div class="flex flex-col space-y-1 mt-4 -mx-2 overflow-y-auto">
     @if ($listConversations->count())
         @foreach ($listConversations as $key => $item)
-            <button class="button-select-user-id flex flex-row items-center hover:bg-gray-100 rounded-xl p-2" data-id="{{ $item['id'] }}"  data-type="{{ $item['type'] }}">
+            <button class="button-select-user-id flex flex-row items-center hover:bg-gray-100 rounded-xl p-2 " data-id="{{ $item['id'] }}"  data-type="{{ $item['type'] }}">
                 @if (is_null($item['avatar_url']))
                     <div class="flex items-center justify-center h-8 w-8 bg-gray-200 rounded-full">
                         {{ strtoupper($item['name'][0]) }}
