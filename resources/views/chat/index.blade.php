@@ -634,7 +634,6 @@
             getMessageSingle(latestToConversationId, 1, true);
             Echo.private('chat-single.' + authId)
                 .listen('SendMessageEvent', (e) => {
-                    $('#reload-conversation').trigger("click");
                     getNewCountUnReadMessageUserSingle(e.conversationId, e.sender.id);
                     if (e.sender.id == $('#current-send-user-id').val() || e.conversationId == $('#current-send-user-id').val()) {
                         restartContentDivMessageDetailFirstSendMessage();
